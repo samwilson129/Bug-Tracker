@@ -53,16 +53,14 @@ public class DBConnection {
                     + "FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE)";
             stmt.executeUpdate(createBugsTable);
 
-            // Create Bug History table
-            String createBugHistoryTable = "CREATE TABLE IF NOT EXISTS BugHistory ("
+            // Create Reports table
+            String createReportsTable = "CREATE TABLE IF NOT EXISTS Reports ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
-                    + "bug_id INT, "
-                    + "status ENUM('Reported', 'In Progress', 'Fixed', 'Verified', 'Closed') NOT NULL, "
-                    + "updated_by INT, "
-                    + "update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                    + "FOREIGN KEY (bug_id) REFERENCES Bugs(id) ON DELETE CASCADE, "
-                    + "FOREIGN KEY (updated_by) REFERENCES Users(id) ON DELETE SET NULL)";
-            stmt.executeUpdate(createBugHistoryTable);
+                    + "generated_by VARCHAR(255) NOT NULL, "
+                    + "project VARCHAR(255) NOT NULL, "
+                    + "bugs_summaries TEXT, "
+                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+            stmt.executeUpdate(createReportsTable);
 
             System.out.println("Database and tables checked/created successfully.");
         } catch (SQLException e) {
