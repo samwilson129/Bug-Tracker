@@ -6,7 +6,16 @@ public class User {
         ProjectManager,
         Developer,
         Tester;
+
+        public static UserRole fromString(String role) {
+            return UserRole.valueOf(role.toUpperCase());
+        }
+
+        public String toString() {
+            return name();
+        }
     }
+    
 
     protected int id;
     protected String name;
