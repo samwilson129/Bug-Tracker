@@ -8,7 +8,7 @@ import model.Bug;
 
 public class BugDAO {
 
-    public void addBug(Bug bug) {
+    public int addBug(Bug bug) {
         String sql = "insert into bugs (title,description,bugstatus,createdAt,updatedAt,assignedTo,reportedBy) values (?,?,?,?,?,?,?,?)";
         try (Connection conn=DBConnection.getConnection();
              PreparedStatement stmt=conn.prepareStatement(sql)) {
@@ -24,6 +24,7 @@ public class BugDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return bug.getter_id();
     }
 
     public Bug getBugById(int id) {
