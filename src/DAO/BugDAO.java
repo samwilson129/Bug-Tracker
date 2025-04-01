@@ -9,17 +9,17 @@ import model.Bug;
 public class BugDAO {
 
     public void addBug(Bug bug) {
-        String sql = "insert into bugs (id,title,description,bugstatus,createdAt,updatedAt,assignedTo,reportedBy) values (?,?,?,?,?,?,?,?)";
+        String sql = "insert into bugs (title,description,bugstatus,createdAt,updatedAt,assignedTo,reportedBy) values (?,?,?,?,?,?,?,?)";
         try (Connection conn=DBConnection.getConnection();
              PreparedStatement stmt=conn.prepareStatement(sql)) {
-            stmt.setInt(1,bug.getter_id());
-            stmt.setString(2,bug.getter_title());
-            stmt.setString(3,bug.getter_description());
-            stmt.setString(4,bug.getter_bugstatus().name());
-            stmt.setTimestamp(5,Timestamp.valueOf(bug.getter_createdAt()));
-            stmt.setTimestamp(6,Timestamp.valueOf(bug.getter_updatedAt()));
-            stmt.setString(7,bug.getter_assignedTo());
-            stmt.setString(8,bug.getter_reportedBy());
+            // stmt.setInt(1,bug.getter_id());
+            stmt.setString(1,bug.getter_title());
+            stmt.setString(2,bug.getter_description());
+            stmt.setString(3,bug.getter_bugstatus().name());
+            stmt.setTimestamp(4,Timestamp.valueOf(bug.getter_createdAt()));
+            stmt.setTimestamp(5,Timestamp.valueOf(bug.getter_updatedAt()));
+            stmt.setString(6,bug.getter_assignedTo());
+            stmt.setString(7,bug.getter_reportedBy());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

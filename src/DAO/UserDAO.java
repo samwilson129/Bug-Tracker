@@ -8,7 +8,7 @@ import model.User;
 public class UserDAO {
 
     // Add a new user
-    public void addUser(User user) {
+    public User addUser(User user) {
         String sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -22,6 +22,31 @@ public class UserDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return user;
+    }
+
+    
+    // Get user by email
+    // This method retrieves a user from the database using their email address.
+    public User getUserByEmail(String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String password = rs.getString("password");
+                User.UserRole role = User.UserRole.valueOf(rs.getString("role")); // Convert string to enum
+                return new User(id, name, email, password, role);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if user is not found
     }
 
     // Get a user by ID
