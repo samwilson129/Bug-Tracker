@@ -100,8 +100,3 @@
     </plugins>
   </build>
 </project>
-<!--
-  This is a Maven POM file for a Vaadin-based Java project.
-  It includes dependencies for Vaadin, Jakarta Servlet API, MySQL Connector, and SLF4J for logging.
-  The build section configures the Maven Compiler Plugin, Vaadin Maven Plugin, and Jetty Plugin for running the application.
-  -->
