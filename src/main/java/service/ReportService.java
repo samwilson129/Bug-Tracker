@@ -1,9 +1,9 @@
-package service;
+package main.java.service;
 
 import java.util.List;
 
-import DAO.ReportDAO;
-import model.Report;
+import main.java.DAO.ReportDAO;
+import main.java.model.Report;
 
 public class ReportService {
     private final ReportDAO reportDAO;

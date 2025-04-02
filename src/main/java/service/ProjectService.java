@@ -1,7 +1,7 @@
-package service;
+package main.java.service;
 
-import DAO.ProjectDAO;
-import model.Project;
+import main.java.DAO.ProjectDAO;
+import main.java.model.Project;
 import java.util.List;
 
 public class ProjectService {

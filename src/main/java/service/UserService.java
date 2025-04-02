@@ -1,11 +1,11 @@
-package service;
+package main.java.service;
 
-import DAO.BugDAO;
-import DAO.UserDAO;
-import model.Bug;
-import model.User;
-import model.Bug.BugStatus;
-import model.User.UserRole;
+import main.java.DAO.BugDAO;
+import main.java.DAO.UserDAO;
+import main.java.model.Bug;
+import main.java.model.User;
+import main.java.model.Bug.BugStatus;
+import main.java.model.User.UserRole;
 
 import java.time.LocalDateTime;
 import java.util.List;

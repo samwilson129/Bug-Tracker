@@ -1,4 +1,4 @@
-package DAO;
+package main.java.DAO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import model.Report;
+import main.java.model.Report;
 
 public class ReportDAO {
 

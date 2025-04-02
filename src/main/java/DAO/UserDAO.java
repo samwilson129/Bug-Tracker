@@ -1,9 +1,9 @@
-package DAO;
+package main.java.DAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.User;
+import main.java.model.User;
 
 public class UserDAO {
 

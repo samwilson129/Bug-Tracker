@@ -1,10 +1,10 @@
-package DAO;
+package main.java.DAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import model.Project;
+import main.java.model.Project;
 
 public class ProjectDAO {
 

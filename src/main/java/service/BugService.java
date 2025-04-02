@@ -1,11 +1,12 @@
-package service;
+package main.java.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import DAO.BugDAO;
-import model.Bug;
-import model.Bug.BugStatus;
+
+import main.java.DAO.BugDAO;
+import main.java.model.Bug;
+import main.java.model.Bug.BugStatus;
 
 public class BugService {
     private final BugDAO bugDAO;
