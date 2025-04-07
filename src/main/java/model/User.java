@@ -8,7 +8,8 @@ public class User {
         Tester;
 
         public static UserRole fromString(String role) {
-            return UserRole.valueOf(role.toUpperCase());
+            // return UserRole.valueOf(role.toUpperCase());
+            return UserRole.valueOf(role);
         }
 
         public String toString() {
@@ -49,6 +50,10 @@ public class User {
 
     public UserRole getter_userrole() {
         return userrole;
+    }
+
+    public String getRole() {
+        return userrole.toString();
     }
 
     public void setter_id(int id) {
