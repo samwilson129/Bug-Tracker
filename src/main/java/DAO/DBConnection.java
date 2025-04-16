@@ -52,29 +52,47 @@ public class DBConnection {
                     + "name VARCHAR(255) NOT NULL, "
                     + "email VARCHAR(255) UNIQUE NOT NULL, "
                     + "password VARCHAR(255) NOT NULL, "
-                    + "role ENUM('Administrator', 'ProjectManager', 'Developer', 'Tester') NOT NULL)";
+                    + "role ENUM('Administrator', 'ProjectManager', 'Developer', 'Tester') NOT NULL,"
+                    + "created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ";
             stmt.executeUpdate(createUsersTable);
             System.out.println("[DEBUG] Users table created or already exists.");
 
+            // Updated Projects table with manager_id FK
             String createProjectsTable = "CREATE TABLE IF NOT EXISTS Projects ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
                     + "name VARCHAR(255) NOT NULL, "
                     + "description TEXT, "
-                    + "bugs TEXT)";
+                    + "bugs TEXT, "
+                    + "manager_id INT, "
+                    + "FOREIGN KEY (manager_id) REFERENCES Users(id) ON DELETE SET NULL)";
             stmt.executeUpdate(createProjectsTable);
             System.out.println("[DEBUG] Projects table created or already exists.");
+
+                // New Project_Developers mapping table
+            String createProjectDevelopersTable = "CREATE TABLE IF NOT EXISTS Project_Developers ("
+                    + "project_id INT NOT NULL, "
+                    + "developer_id INT NOT NULL, "
+                    + "PRIMARY KEY (project_id, developer_id), "
+                    + "FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE, "
+                    + "FOREIGN KEY (developer_id) REFERENCES Users(id) ON DELETE CASCADE)";
+            stmt.executeUpdate(createProjectDevelopersTable);
+            System.out.println("[DEBUG] Project_Developers table created or already exists.");
+
 
             String createBugsTable = "CREATE TABLE IF NOT EXISTS Bugs ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
                     + "title VARCHAR(255) NOT NULL, "
                     + "description TEXT, "
-                    + "status ENUM('Reported', 'In Progress', 'Fixed', 'Verified', 'Closed') DEFAULT 'Reported', "
-                    + "assigned_to INT, "
-                    + "project_id INT, "
+                    + "status ENUM('reported', 'in_progress', 'fixed', 'verified', 'closed') DEFAULT 'reported', "
+                    + " priority ENUM('Low', 'Medium', 'High', 'Critical') DEFAULT 'Low',"
                     + "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+                    + "assigned_to INT, "
+                    + "reported_by INT, "
+                    + "project_id INT, "
                     + "FOREIGN KEY (assigned_to) REFERENCES Users(id) ON DELETE SET NULL, "
                     + "FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE)";
-            stmt.executeUpdate(createBugsTable);
+            stmt.executeUpdate(createBugsTable);    
             System.out.println("[DEBUG] Bugs table created or already exists.");
 
             String createReportsTable = "CREATE TABLE IF NOT EXISTS Reports ("
@@ -82,7 +100,7 @@ public class DBConnection {
                     + "generated_by VARCHAR(255) NOT NULL, "
                     + "project VARCHAR(255) NOT NULL, "
                     + "bugs_summaries TEXT, "
-                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
+                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";    
             stmt.executeUpdate(createReportsTable);
             System.out.println("[DEBUG] Reports table created or already exists.");
 

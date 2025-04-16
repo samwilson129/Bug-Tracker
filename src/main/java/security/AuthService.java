@@ -217,8 +217,14 @@ public class AuthService {
 
     // Store logged-in user in session
     public void setCurrentUser(User user) {
-        //System.out.println("Setting session user: " + user.getter_name());
-        VaadinSession.getCurrent().setAttribute(SESSION_USER_KEY, user);
+        System.out.println("Setting session user: " + user.getter_name());
+        VaadinSession session = VaadinSession.getCurrent();
+        session.setAttribute(SESSION_USER_KEY, user);
+
+          // ✅ Store individual attributes for convenience
+        session.setAttribute("userId", user.getter_id());
+        session.setAttribute("email", user.getter_email());
+        session.setAttribute("role", user.getRole());
     }
 
     // Get current user from session
@@ -251,7 +257,13 @@ public class AuthService {
 
     // Logout and clear session
     public void logout() {
-        VaadinSession.getCurrent().getSession().invalidate();
-        VaadinSession.getCurrent().close();
+        VaadinSession session = VaadinSession.getCurrent();
+        session.setAttribute(SESSION_USER_KEY, null);
+        session.setAttribute("userId", null);
+        session.setAttribute("email", null);
+        session.setAttribute("role", null);
+        
+        session.getSession().invalidate();
+        session.close();
     }
 }

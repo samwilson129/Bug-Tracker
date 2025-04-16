@@ -21,7 +21,7 @@ public class UserTypeSelector extends CustomField<String> {
         
         // Create the combo box with user type options
         userTypeComboBox = new ComboBox<>();
-        userTypeComboBox.setItems("Developer", "Tester", "Project Manager", "Administrator");
+        userTypeComboBox.setItems("Developer", "Tester", "ProjectManager", "Administrator");
         userTypeComboBox.setPlaceholder("Select user type");
         userTypeComboBox.setRequired(true);
         userTypeComboBox.setWidth("100%");

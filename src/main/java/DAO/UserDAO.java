@@ -60,6 +60,38 @@ public class UserDAO {
         return null;
     }
 
+    // Get user by name
+    public User getUserByName(String name) {
+        System.out.println("[DEBUG] Fetching user by name: " + name);
+        String sql = "SELECT * FROM users WHERE name = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            System.out.println("[DEBUG] DB Connection established for getUserByName()");
+            stmt.setString(1, name);
+            System.out.println("[DEBUG] Executing SQL: " + stmt.toString());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                System.out.println("[DEBUG] User found: " + rs.getString("name"));
+                return new User(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    User.UserRole.fromString(rs.getString("role"))
+                );
+            } else {
+                System.out.println("[DEBUG] No user found with name: " + name);
+            }
+        } catch (SQLException e) {
+            System.out.println("[ERROR] Error retrieving user by name: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // Get a user by ID
     public User getUserById(int id) {
         System.out.println("[DEBUG] Fetching user by ID: " + id);
@@ -108,7 +140,8 @@ public class UserDAO {
                     rs.getString("name"),
                     rs.getString("email"),
                     rs.getString("password"),
-                    User.UserRole.fromString(rs.getString("role"))
+                    User.UserRole.fromString(rs.getString("role")),
+                    rs.getTimestamp("created_date") 
                 );
                 users.add(user);
                 System.out.println("[DEBUG] Retrieved user: " + user.getter_name());
@@ -144,6 +177,42 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean updateUserProjects(int userId, List<Integer> projectIds) {
+        String deleteSQL = "DELETE FROM Project_Developers WHERE developer_id = ?";
+        String insertSQL = "INSERT INTO Project_Developers (project_id, developer_id) VALUES (?, ?)";
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // First delete all existing assignments
+                try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSQL)) {
+                    deleteStmt.setInt(1, userId);
+                    deleteStmt.executeUpdate();
+                }
+    
+                // Then insert new assignments
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSQL)) {
+                    for (Integer projectId : projectIds) {
+                        insertStmt.setInt(1, projectId);
+                        insertStmt.setInt(2, userId);
+                        insertStmt.executeUpdate();
+                    }
+                }
+                
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Delete a user

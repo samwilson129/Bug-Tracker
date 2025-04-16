@@ -35,6 +35,27 @@ public class ProjectService {
         }
     }
 
+
+    // Retrieve all projects managed by a specific manager
+    public List<Project> getProjectsByManagerId(int managerId) {
+        try {
+            return projectDAO.getProjectsByManagerId(managerId); // You'd implement this in DAO
+        } catch (Exception e) {
+            System.err.println("Error retrieving projects for manager: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Retrieve all projects assigned to a specific developer
+    public List<Project> getProjectsByDeveloperId(int developerId) {
+        try {
+            return projectDAO.getProjectsByDeveloperId(developerId); // Also implement in DAO
+        } catch (Exception e) {
+            System.err.println("Error retrieving projects for developer: " + e.getMessage());
+            return null;
+        }
+    }
+
     // Retrieve all projects
     public List<Project> getAllProjects() {
         try {
