@@ -15,15 +15,15 @@ public class ReportDAO {
 
     // Add a new report
     public void addReport(Report report) {
-        String sql = "INSERT INTO report (generated_by, project, bugs_summaries, generated_date) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO reports (generated_by, project, bugs_summaries, generated_date) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, report.getter_generatedBy());
             stmt.setString(2, report.getter_project());
             stmt.setString(3, String.join(", ", report.getter_bugs_summaries())); // Convert List to CSV String
             stmt.setTimestamp(4, Timestamp.valueOf(report.getter_generatedDate()));
-            
+
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -32,22 +32,21 @@ public class ReportDAO {
 
     // Get a report by ID
     public Report getReportById(int id) {
-        String sql = "SELECT * FROM report WHERE id = ?";
+        String sql = "SELECT * FROM reports WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 List<String> bugsSummaries = Arrays.asList(rs.getString("bugs_summaries").split(", "));
                 return new Report(
-                    rs.getInt("id"),
-                    rs.getString("generated_by"),
-                    rs.getString("project"),
-                    bugsSummaries,
-                    rs.getTimestamp("generated_date").toLocalDateTime()
-                );
+                        rs.getInt("id"),
+                        rs.getString("generated_by"),
+                        rs.getString("project"),
+                        bugsSummaries,
+                        rs.getTimestamp("generated_date").toLocalDateTime());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -58,21 +57,20 @@ public class ReportDAO {
     // Get all reports
     public List<Report> getAllReports() {
         List<Report> reports = new ArrayList<>();
-        String sql = "SELECT * FROM report";
-        
+        String sql = "SELECT * FROM reports";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
                 List<String> bugsSummaries = Arrays.asList(rs.getString("bugs_summaries").split(", "));
                 reports.add(new Report(
-                    rs.getInt("id"),
-                    rs.getString("generated_by"),
-                    rs.getString("project"),
-                    bugsSummaries,
-                    rs.getTimestamp("generated_date").toLocalDateTime()
-                ));
+                        rs.getInt("id"),
+                        rs.getString("generated_by"),
+                        rs.getString("project"),
+                        bugsSummaries,
+                        rs.getTimestamp("generated_date").toLocalDateTime()));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -82,10 +80,10 @@ public class ReportDAO {
 
     // Delete a report by ID
     public boolean deleteReport(int id) {
-        String sql = "DELETE FROM report WHERE id = ?";
+        String sql = "DELETE FROM reports WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0; // Returns true if a row was deleted
         } catch (SQLException e) {

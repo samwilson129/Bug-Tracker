@@ -13,8 +13,14 @@ public class ReportService {
     }
 
     // Add a new report
-    public void addReport(Report report) {
-        reportDAO.addReport(report);
+    public boolean addReport(Report report) {
+        try {
+            reportDAO.addReport(report);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Get a report by ID
@@ -31,4 +37,5 @@ public class ReportService {
     public boolean deleteReport(int id) {
         return reportDAO.deleteReport(id);
     }
+
 }

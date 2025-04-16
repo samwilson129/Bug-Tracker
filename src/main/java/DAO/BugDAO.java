@@ -381,4 +381,45 @@ public class BugDAO {
         }
         return false;
     }
+
+    public int getActiveBugCount(int projectId) {
+        String sql = "SELECT COUNT(*) FROM Bugs WHERE project_id = ? " +
+                "AND status NOT IN ('FIXED', 'VERIFIED', 'CLOSED')";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                System.out.println("[DEBUG] Active bug count for project " + projectId + ": " + count);
+                return count;
+            }
+        } catch (SQLException e) {
+            System.out.println("[ERROR] Error counting active bugs: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getActiveProjectBugCount(int projectId) {
+        String sql = "SELECT COUNT(*) FROM Bugs WHERE project_id = ? " +
+                "AND status IN ('REPORTED', 'IN_PROGRESS')";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

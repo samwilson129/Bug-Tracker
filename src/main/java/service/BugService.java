@@ -2,7 +2,7 @@ package main.java.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 import main.java.DAO.BugDAO;
 import main.java.model.Bug;
@@ -18,17 +18,16 @@ public class BugService {
     // Report a new bug
     public Bug reportBug(String title, String description, String reportedBy, int projectId) {
         Bug newBug = new Bug(
-            0, // ID is auto-generated in the database
-            title,
-            description,
-            BugStatus.reported, // Default status when reported
-            Bug.Priority.Low, // Default priority
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            null, // No developer assigned initially
-            reportedBy,
-            projectId
-        );
+                0, // ID is auto-generated in the database
+                title,
+                description,
+                BugStatus.reported, // Default status when reported
+                Bug.Priority.Low, // Default priority
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null, // No developer assigned initially
+                reportedBy,
+                projectId);
         int generatedId = bugDAO.addBug(newBug);
         newBug.setter_id(generatedId); // Set the auto-generated ID
         return newBug;
@@ -86,7 +85,6 @@ public class BugService {
         return bugDAO.getUnassignedBugsForProject(projectId);
     }
 
-
     // Get list of bugs assigned to a specific developer
     public boolean assignBugToUser(int bugId, int userId) {
         return bugDAO.assignBugToUser(bugId, userId);
@@ -100,5 +98,22 @@ public class BugService {
     // Fetch all bug data (for reports, views, etc.)
     public List<Bug> fetchBugData() {
         return bugDAO.getAllBugs();
+    }
+
+    // Get list of bugs by project ID
+    public List<Bug> getBugsByProjectId(int projectId) {
+        List<Bug> allBugs = getAllBugs();
+        return allBugs.stream()
+                .filter(bug -> bug.getter_projectId() == projectId)
+                .collect(Collectors.toList());
+    }
+
+    // Get list of active bugs
+    public int getActiveBugCount(int projectId) {
+        return bugDAO.getActiveBugCount(projectId);
+    }
+
+    public int getActiveProjectBugCount(int projectId) {
+        return bugDAO.getActiveProjectBugCount(projectId);
     }
 }
