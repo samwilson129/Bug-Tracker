@@ -17,57 +17,44 @@ import main.java.model.Bug.BugStatus;
 public class BugDAO {
 
     // public int addBug(Bug bug) {
-    //     String sql = "insert into bugs (title,description,status,priority,created_at,updated_at,assigned_to,reported_by,project_id) values (?,?,?,?,?,?,?,?,?)";
-    //     try (Connection conn=DBConnection.getConnection();
-    //          PreparedStatement stmt=conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
-    //         // stmt.setInt(1,bug.getter_id());
-    //         stmt.setString(1,bug.getter_title());
-    //         stmt.setString(2,bug.getter_description());
-    //         stmt.setString(3,bug.getter_bugstatus().name());
-    //         stmt.setString(4, bug.getter_priority().name());
-    //         stmt.setTimestamp(5,Timestamp.valueOf(bug.getter_createdAt()));
-    //         stmt.setTimestamp(6,Timestamp.valueOf(bug.getter_updatedAt()));
-    //         stmt.setString(7,bug.getter_assignedTo());
-    //         stmt.setString(8,bug.getter_reportedBy());
-    //         stmt.setString(9, String.valueOf(bug.getter_projectId()));
-    //         stmt.executeUpdate();
+    // String sql = "insert into bugs
+    // (title,description,status,priority,created_at,updated_at,assigned_to,reported_by,project_id)
+    // values (?,?,?,?,?,?,?,?,?)";
+    // try (Connection conn=DBConnection.getConnection();
+    // PreparedStatement
+    // stmt=conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+    // // stmt.setInt(1,bug.getter_id());
+    // stmt.setString(1,bug.getter_title());
+    // stmt.setString(2,bug.getter_description());
+    // stmt.setString(3,bug.getter_bugstatus().name());
+    // stmt.setString(4, bug.getter_priority().name());
+    // stmt.setTimestamp(5,Timestamp.valueOf(bug.getter_createdAt()));
+    // stmt.setTimestamp(6,Timestamp.valueOf(bug.getter_updatedAt()));
+    // stmt.setString(7,bug.getter_assignedTo());
+    // stmt.setString(8,bug.getter_reportedBy());
+    // stmt.setString(9, String.valueOf(bug.getter_projectId()));
+    // stmt.executeUpdate();
 
-    //         ResultSet rs = stmt.getGeneratedKeys();
-    //         if (rs.next()) {
-    //             bug.setter_id(rs.getInt(1)); // update bug object with generated ID
-    //         }
-
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return bug.getter_id();
+    // ResultSet rs = stmt.getGeneratedKeys();
+    // if (rs.next()) {
+    // bug.setter_id(rs.getInt(1)); // update bug object with generated ID
     // }
 
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // }
+    // return bug.getter_id();
+    // }
 
     public int addBug(Bug bug) {
-<<<<<<< HEAD
-        String sql = "insert into bugs (title,description,bugstatus,createdAt,updatedAt,assignedTo,reportedBy) values (?,?,?,?,?,?,?,?)";
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            // stmt.setInt(1,bug.getter_id());
-            stmt.setString(1, bug.getter_title());
-            stmt.setString(2, bug.getter_description());
-            stmt.setString(3, bug.getter_bugstatus().name());
-            stmt.setTimestamp(4, Timestamp.valueOf(bug.getter_createdAt()));
-            stmt.setTimestamp(5, Timestamp.valueOf(bug.getter_updatedAt()));
-            stmt.setString(6, bug.getter_assignedTo());
-            stmt.setString(7, bug.getter_reportedBy());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-=======
         String insertBugSQL = "INSERT INTO bugs (title, description, status, priority, created_at, updated_at, assigned_to, reported_by, project_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String fetchProjectBugsSQL = "SELECT bugs FROM projects WHERE id = ?";
         String updateProjectBugsSQL = "UPDATE projects SET bugs = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement insertBugStmt = conn.prepareStatement(insertBugSQL, Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
-            PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
+                PreparedStatement insertBugStmt = conn.prepareStatement(insertBugSQL, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
+                PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
 
             // Insert bug into the bugs table
             insertBugStmt.setString(1, bug.getter_title());
@@ -97,7 +84,8 @@ public class BugDAO {
                 String bugsJson = bugsRs.getString("bugs");
                 if (bugsJson != null && !bugsJson.isEmpty()) {
                     System.out.println("Fetching existing bugs from project JSON: " + bug.getter_projectId());
-                    bugList = objectMapper.readValue(bugsJson, new TypeReference<List<Map<String, Object>>>() {});
+                    bugList = objectMapper.readValue(bugsJson, new TypeReference<List<Map<String, Object>>>() {
+                    });
                 }
             }
 
@@ -115,14 +103,11 @@ public class BugDAO {
             updateBugsStmt.executeUpdate();
 
         } catch (SQLException | IOException e) {
->>>>>>> 0520a8b98319d121ef6e55ee554cf6c50f369738
             e.printStackTrace();
         }
 
         return bug.getter_id();
     }
-
-
 
     public Bug getBugById(int id) {
         String sql = "select * from bugs where id = ?";
@@ -133,15 +118,8 @@ public class BugDAO {
             if (rs.next()) {
                 String title = rs.getString("title");
                 String description = rs.getString("description");
-<<<<<<< HEAD
-                Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("bugstatus"));
-                LocalDateTime createdAt = rs.getTimestamp("createdAt").toLocalDateTime();
-                LocalDateTime updatedAt = rs.getTimestamp("updatedAt").toLocalDateTime();
-                String assignedTo = rs.getString("assignedTo");
-                String reportedBy = rs.getString("reportedBy");
-                return new Bug(id, title, description, bugstatus, createdAt, updatedAt, assignedTo, reportedBy);
-=======
-                //Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));// here changed from BugStatus.valueOf to Bug.BugStatus.valueOf
+                // Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));//
+                // here changed from BugStatus.valueOf to Bug.BugStatus.valueOf
                 Bug.BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
                 Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
                 LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
@@ -150,8 +128,8 @@ public class BugDAO {
                 String reportedBy = rs.getString("reported_by");
                 int projectId = rs.getInt("project_id");
 
-                return new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo, reportedBy, projectId);
->>>>>>> 0520a8b98319d121ef6e55ee554cf6c50f369738
+                return new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo,
+                        reportedBy, projectId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -163,8 +141,8 @@ public class BugDAO {
         List<Bug> bugs = new ArrayList<>();
         String sql = "select * from bugs where reported_by = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString( 1, reportedBy);
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, reportedBy);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -178,7 +156,8 @@ public class BugDAO {
                 String assignedTo = rs.getString("assigned_to");
                 int projectId = rs.getInt("project_id");
 
-                bugs.add(new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo, reportedBy, projectId));
+                bugs.add(new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo,
+                        reportedBy, projectId));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -189,8 +168,8 @@ public class BugDAO {
     public int getAssignedBugCount(int userId) {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE assigned_to = ? AND status != 'CLOSED'";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -205,13 +184,13 @@ public class BugDAO {
     public List<Bug> getUnassignedBugsForProject(int projectId) {
         List<Bug> bugs = new ArrayList<>();
         String sql = "SELECT * FROM Bugs WHERE project_id = ? AND assigned_to IS NULL";
-        
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, projectId);
             ResultSet rs = stmt.executeQuery();
-            
+
             while (rs.next()) {
                 Bug bug = new Bug();
                 bug.setter_id(rs.getInt("id"));
@@ -231,8 +210,8 @@ public class BugDAO {
     public int getCompletedBugCount(int userId) {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE assigned_to = ? AND status = 'CLOSED'";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, userId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -244,15 +223,14 @@ public class BugDAO {
         return 0;
     }
 
-
     public List<Bug> getUnassignedBugs() {
         List<Bug> bugs = new ArrayList<>();
         String sql = "SELECT * FROM Bugs WHERE assigned_to IS NULL";
-        
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
                 Bug bug = new Bug();
                 bug.setter_id(rs.getInt("id"));
@@ -272,8 +250,8 @@ public class BugDAO {
     public boolean assignBugToUser(int bugId, int userId) {
         String sql = "UPDATE Bugs SET assigned_to = ?, status = 'IN_PROGRESS' WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, userId);
             stmt.setInt(2, bugId);
             return stmt.executeUpdate() > 0;
@@ -294,14 +272,6 @@ public class BugDAO {
                 int id = rs.getInt("id");
                 String title = rs.getString("title");
                 String description = rs.getString("description");
-<<<<<<< HEAD
-                Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("bugstatus"));
-                LocalDateTime createdAt = rs.getTimestamp("createdAt").toLocalDateTime();
-                LocalDateTime updatedAt = rs.getTimestamp("updatedAt").toLocalDateTime();
-                String assignedTo = rs.getString("assignedTo");
-                String reportedBy = rs.getString("reportedBy");
-                bugs.add(new Bug(id, title, description, bugstatus, createdAt, updatedAt, assignedTo, reportedBy));
-=======
                 // Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));
                 Bug.BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
                 Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
@@ -311,8 +281,8 @@ public class BugDAO {
                 String reportedBy = rs.getString("reported_by");
                 int projectId = rs.getInt("project_id");
 
-                bugs.add(new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo, reportedBy, projectId));
->>>>>>> 0520a8b98319d121ef6e55ee554cf6c50f369738
+                bugs.add(new Bug(id, title, description, bugstatus, priority, createdAt, updatedAt, assignedTo,
+                        reportedBy, projectId));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -321,53 +291,38 @@ public class BugDAO {
     }
 
     // public boolean updateBug(Bug bug) {
-    //     String sql="update bugs set title = ?, description = ?, status = ?, priority=? ,created_at = ?, updated_at = ?, assigned_to = ?, reported_by = ? , project_id = ? where id = ?";
-    //     try (Connection conn=DBConnection.getConnection();
-    //          PreparedStatement stmt=conn.prepareStatement(sql)) {
-    //             stmt.setString(1, bug.getter_title());
-    //             stmt.setString(2, bug.getter_description());
-    //             stmt.setString(3, bug.getter_bugstatus().name());
-    //             stmt.setString(4, bug.getter_priority().name());
-    //             stmt.setTimestamp(5, Timestamp.valueOf(bug.getter_createdAt()));
-    //             stmt.setTimestamp(6, Timestamp.valueOf(bug.getter_updatedAt()));
-    //             stmt.setString(7, bug.getter_assignedTo());
-    //             stmt.setString(8, bug.getter_reportedBy());
-    //             stmt.setString(9, String.valueOf(bug.getter_projectId()));
-    //             stmt.setInt(10, bug.getter_id());
-    //         int updated=stmt.executeUpdate();
-    //         return updated>0;
-    //     } catch (SQLException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return false;
+    // String sql="update bugs set title = ?, description = ?, status = ?,
+    // priority=? ,created_at = ?, updated_at = ?, assigned_to = ?, reported_by = ?
+    // , project_id = ? where id = ?";
+    // try (Connection conn=DBConnection.getConnection();
+    // PreparedStatement stmt=conn.prepareStatement(sql)) {
+    // stmt.setString(1, bug.getter_title());
+    // stmt.setString(2, bug.getter_description());
+    // stmt.setString(3, bug.getter_bugstatus().name());
+    // stmt.setString(4, bug.getter_priority().name());
+    // stmt.setTimestamp(5, Timestamp.valueOf(bug.getter_createdAt()));
+    // stmt.setTimestamp(6, Timestamp.valueOf(bug.getter_updatedAt()));
+    // stmt.setString(7, bug.getter_assignedTo());
+    // stmt.setString(8, bug.getter_reportedBy());
+    // stmt.setString(9, String.valueOf(bug.getter_projectId()));
+    // stmt.setInt(10, bug.getter_id());
+    // int updated=stmt.executeUpdate();
+    // return updated>0;
+    // } catch (SQLException e) {
+    // e.printStackTrace();
+    // }
+    // return false;
     // }
 
-
     public boolean updateBug(Bug bug) {
-<<<<<<< HEAD
-        String sql = "update bugs set title = ?, description = ?, bugstatus = ?, createdAt = ?, updatedAt = ?, assignedTo = ?, reportedBy = ? where id = ?";
-        try (Connection conn = DBConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, bug.getter_title());
-            stmt.setString(2, bug.getter_description());
-            stmt.setString(3, bug.getter_bugstatus().name());
-            stmt.setTimestamp(4, Timestamp.valueOf(bug.getter_createdAt()));
-            stmt.setTimestamp(5, Timestamp.valueOf(bug.getter_updatedAt()));
-            stmt.setString(6, bug.getter_assignedTo());
-            stmt.setString(7, bug.getter_reportedBy());
-            stmt.setInt(8, bug.getter_id());
-            int updated = stmt.executeUpdate();
-            return updated > 0;
-        } catch (SQLException e) {
-=======
         String updateBugSQL = "UPDATE bugs SET title = ?, description = ?, status = ?, priority = ?, updated_at = ?, assigned_to = ? WHERE id = ?";
         String fetchProjectBugsSQL = "SELECT bugs FROM projects WHERE id = ?";
         String updateProjectBugsSQL = "UPDATE projects SET bugs = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-            PreparedStatement updateBugStmt = conn.prepareStatement(updateBugSQL);
-            PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
-            PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
+                PreparedStatement updateBugStmt = conn.prepareStatement(updateBugSQL);
+                PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
+                PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
 
             // Update the bug in the bugs table
             updateBugStmt.setString(1, bug.getter_title());
@@ -390,7 +345,8 @@ public class BugDAO {
                 List<Map<String, Object>> bugList;
 
                 if (bugsJson != null && !bugsJson.isEmpty()) {
-                    bugList = objectMapper.readValue(bugsJson, new TypeReference<List<Map<String, Object>>>() {});
+                    bugList = objectMapper.readValue(bugsJson, new TypeReference<List<Map<String, Object>>>() {
+                    });
                     for (Map<String, Object> bugObj : bugList) {
                         if (((Integer) bugObj.get("id")) == bug.getter_id()) {
                             System.out.println("Updating bug in project JSON: " + bug.getter_id());
@@ -408,7 +364,6 @@ public class BugDAO {
             return true;
 
         } catch (SQLException | IOException e) {
->>>>>>> 0520a8b98319d121ef6e55ee554cf6c50f369738
             e.printStackTrace();
         }
         return false;

@@ -24,7 +24,7 @@ public class DBConnection {
 
         // Step 1: Connect to MySQL without selecting a database
         try (Connection tempConn = DriverManager.getConnection(DB_URL, USER, PASSWORD);
-             Statement stmt = tempConn.createStatement()) {
+                Statement stmt = tempConn.createStatement()) {
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + DB_NAME);
             System.out.println("[DEBUG] Database '" + DB_NAME + "' ensured to exist.");
         } catch (SQLException e) {
@@ -68,7 +68,7 @@ public class DBConnection {
             stmt.executeUpdate(createProjectsTable);
             System.out.println("[DEBUG] Projects table created or already exists.");
 
-                // New Project_Developers mapping table
+            // New Project_Developers mapping table
             String createProjectDevelopersTable = "CREATE TABLE IF NOT EXISTS Project_Developers ("
                     + "project_id INT NOT NULL, "
                     + "developer_id INT NOT NULL, "
@@ -77,7 +77,6 @@ public class DBConnection {
                     + "FOREIGN KEY (developer_id) REFERENCES Users(id) ON DELETE CASCADE)";
             stmt.executeUpdate(createProjectDevelopersTable);
             System.out.println("[DEBUG] Project_Developers table created or already exists.");
-
 
             String createBugsTable = "CREATE TABLE IF NOT EXISTS Bugs ("
                     + "id INT AUTO_INCREMENT PRIMARY KEY, "
@@ -92,7 +91,7 @@ public class DBConnection {
                     + "project_id INT, "
                     + "FOREIGN KEY (assigned_to) REFERENCES Users(id) ON DELETE SET NULL, "
                     + "FOREIGN KEY (project_id) REFERENCES Projects(id) ON DELETE CASCADE)";
-            stmt.executeUpdate(createBugsTable);    
+            stmt.executeUpdate(createBugsTable);
             System.out.println("[DEBUG] Bugs table created or already exists.");
 
             String createReportsTable = "CREATE TABLE IF NOT EXISTS Reports ("
@@ -100,7 +99,7 @@ public class DBConnection {
                     + "generated_by VARCHAR(255) NOT NULL, "
                     + "project VARCHAR(255) NOT NULL, "
                     + "bugs_summaries TEXT, "
-                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";    
+                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
             stmt.executeUpdate(createReportsTable);
             System.out.println("[DEBUG] Reports table created or already exists.");
 

@@ -1,3 +1,4 @@
 .env
 reference.pdf
 target/
+src/main/frontend
