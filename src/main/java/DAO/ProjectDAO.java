@@ -13,10 +13,10 @@ public class ProjectDAO {
         String insertDeveloperSQL = "INSERT INTO project_developers (project_id, developer_id) VALUES (?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);  // Start transaction
+            conn.setAutoCommit(false); // Start transaction
 
             try (PreparedStatement projectStmt = conn.prepareStatement(insertProjectSQL);
-                 PreparedStatement developerStmt = conn.prepareStatement(insertDeveloperSQL)) {
+                    PreparedStatement developerStmt = conn.prepareStatement(insertDeveloperSQL)) {
 
                 // Insert into Projects
                 projectStmt.setInt(1, project.getter_id());
@@ -52,8 +52,8 @@ public class ProjectDAO {
         String selectDevelopersSQL = "SELECT developer_id FROM project_developers WHERE project_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement projectStmt = conn.prepareStatement(selectProjectSQL);
-             PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL)) {
+                PreparedStatement projectStmt = conn.prepareStatement(selectProjectSQL);
+                PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL)) {
 
             projectStmt.setInt(1, id);
             ResultSet rs = projectStmt.executeQuery();
@@ -88,26 +88,26 @@ public class ProjectDAO {
         List<Project> projects = new ArrayList<>();
         String sql = "SELECT * FROM projects WHERE manager_id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-    
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, managerId);
             ResultSet rs = stmt.executeQuery();
-    
+
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
                 String description = rs.getString("description");
                 String bugsStr = rs.getString("bugs");
                 String developerIdsStr = rs.getString("developer_ids");
-    
+
                 List<String> bugs = bugsStr != null && !bugsStr.isEmpty()
                         ? Arrays.asList(bugsStr.split(","))
                         : new ArrayList<>();
-    
+
                 List<Integer> developerIds = developerIdsStr != null && !developerIdsStr.isEmpty()
                         ? Arrays.stream(developerIdsStr.split(",")).map(Integer::parseInt).toList()
                         : new ArrayList<>();
-    
+
                 Project project = new Project();
                 project.setter_id(id);
                 project.setter_name(name);
@@ -122,33 +122,41 @@ public class ProjectDAO {
         }
         return projects;
     }
-
 
     public List<Project> getProjectsByDeveloperId(int developerId) {
         List<Project> projects = new ArrayList<>();
-        String sql = "SELECT * FROM projects WHERE FIND_IN_SET(?, developer_ids) > 0";
+        String sql = "SELECT p.* FROM projects p " +
+                "JOIN project_developers pd ON p.id = pd.project_id " +
+                "WHERE pd.developer_id = ?";
+
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-    
-            stmt.setString(1, String.valueOf(developerId));
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, developerId);
             ResultSet rs = stmt.executeQuery();
-    
+
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String name = rs.getString("name");
                 String description = rs.getString("description");
                 String bugsStr = rs.getString("bugs");
-                String developerIdsStr = rs.getString("developer_ids");
                 int managerId = rs.getInt("manager_id");
-    
+
                 List<String> bugs = bugsStr != null && !bugsStr.isEmpty()
                         ? Arrays.asList(bugsStr.split(","))
                         : new ArrayList<>();
-    
-                List<Integer> developerIds = developerIdsStr != null && !developerIdsStr.isEmpty()
-                        ? Arrays.stream(developerIdsStr.split(",")).map(Integer::parseInt).toList()
-                        : new ArrayList<>();
-    
+
+                // Get all developers for this project
+                List<Integer> developerIds = new ArrayList<>();
+                String devQuery = "SELECT developer_id FROM project_developers WHERE project_id = ?";
+                try (PreparedStatement devStmt = conn.prepareStatement(devQuery)) {
+                    devStmt.setInt(1, id);
+                    ResultSet devRs = devStmt.executeQuery();
+                    while (devRs.next()) {
+                        developerIds.add(devRs.getInt("developer_id"));
+                    }
+                }
+
                 Project project = new Project();
                 project.setter_id(id);
                 project.setter_name(name);
@@ -163,8 +171,6 @@ public class ProjectDAO {
         }
         return projects;
     }
-    
-
 
     public List<Project> getAllProjects() {
         List<Project> projects = new ArrayList<>();
@@ -172,9 +178,9 @@ public class ProjectDAO {
         String selectDevelopersSQL = "SELECT developer_id FROM project_developers WHERE project_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(selectAllProjectsSQL)) {
+                PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL);
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(selectAllProjectsSQL)) {
 
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -210,11 +216,11 @@ public class ProjectDAO {
         String insertDeveloperSQL = "INSERT INTO project_developers (project_id, developer_id) VALUES (?, ?)";
 
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false);  // Begin transaction
+            conn.setAutoCommit(false); // Begin transaction
 
             try (PreparedStatement updateStmt = conn.prepareStatement(updateProjectSQL);
-                 PreparedStatement deleteStmt = conn.prepareStatement(deleteOldDevelopersSQL);
-                 PreparedStatement insertStmt = conn.prepareStatement(insertDeveloperSQL)) {
+                    PreparedStatement deleteStmt = conn.prepareStatement(deleteOldDevelopersSQL);
+                    PreparedStatement insertStmt = conn.prepareStatement(insertDeveloperSQL)) {
 
                 // Update Projects
                 updateStmt.setString(1, project.getter_name());
@@ -260,7 +266,7 @@ public class ProjectDAO {
             conn.setAutoCommit(false);
 
             try (PreparedStatement devStmt = conn.prepareStatement(deleteDevelopersSQL);
-                 PreparedStatement projStmt = conn.prepareStatement(deleteProjectSQL)) {
+                    PreparedStatement projStmt = conn.prepareStatement(deleteProjectSQL)) {
 
                 devStmt.setInt(1, id);
                 devStmt.executeUpdate();

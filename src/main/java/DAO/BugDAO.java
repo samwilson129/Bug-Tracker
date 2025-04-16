@@ -277,7 +277,7 @@ public class BugDAO {
                 Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
                 LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                 LocalDateTime updatedAt = rs.getTimestamp("updated_at").toLocalDateTime();
-                String assignedTo = rs.getString("assignedt_to");
+                String assignedTo = rs.getString("assigned_to");
                 String reportedBy = rs.getString("reported_by");
                 int projectId = rs.getInt("project_id");
 
