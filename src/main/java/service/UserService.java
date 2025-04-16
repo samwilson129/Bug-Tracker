@@ -5,10 +5,13 @@ import main.java.DAO.UserDAO;
 import main.java.model.Bug;
 import main.java.model.User;
 import main.java.model.Bug.BugStatus;
+import main.java.model.Project;
 import main.java.model.User.UserRole;
+import main.java.service.ProjectService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserService {
     private UserDAO userDAO;
@@ -67,12 +70,43 @@ public class UserService {
         return userDAO.deleteUser(user.getter_id());
     }
 
+    public boolean deleteUserById(int id) {
+        User user = userDAO.getUserById(id);
+        if (user == null || user.getter_userrole() == UserRole.Administrator) {
+            return false;
+        }
+        return userDAO.deleteUser(id);
+    }
+
     public List<User> getAllUsers() {
         return userDAO.getAllUsers();
     }
 
+    // Add this method after getAllUsers()
+    public User getUserById(int id) {
+        return userDAO.getUserById(id);
+    }
+
+
     public boolean updateUser(User user) {
         return userDAO.updateUser(user);
+    }
+
+    public boolean updateUserProjects(int userId, List<String> projectNames) {
+        try {
+            final ProjectService projectService = new ProjectService();
+            // First get all project IDs from project names
+            List<Integer> projectIds = projectService.getAllProjects().stream()
+                .filter(p -> projectNames.contains(p.getter_name()))
+                .map(Project::getter_id)
+                .collect(Collectors.toList());
+
+            // Update the Project_Developers table
+            return userDAO.updateUserProjects(userId, projectIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Bug Management
@@ -80,16 +114,18 @@ public class UserService {
         return bugDAO.getAllBugs();
     }
 
-    public void reportBug(String title, String description, String reportedBy) {
+    public void reportBug(String title, String description, String reportedBy, int projectId) {
         Bug newBug = new Bug(
             0,
             title,
             description,
             BugStatus.reported,
+            Bug.Priority.Low,
             LocalDateTime.now(),
             LocalDateTime.now(),
             null,
-            reportedBy
+            reportedBy,
+            projectId
         );
         bugDAO.addBug(newBug);
     }

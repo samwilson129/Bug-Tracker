@@ -1,5 +1,8 @@
 package main.java.model;
 
+//import java.security.Timestamp;
+import java.sql.Timestamp;
+
 public class User {
     public enum UserRole {
         Administrator,
@@ -23,6 +26,20 @@ public class User {
     protected String email;
     protected String password;
     protected UserRole userrole;
+    protected Timestamp created_date;
+
+    public User() {
+        // Default constructor
+    }
+
+    public User(int id, String name, String email, String password, UserRole userrole, Timestamp created_date) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.userrole = userrole;
+        this.created_date = created_date;
+    }
 
     public User(int id, String name, String email, String password, UserRole userrole) {
         this.id = id;
@@ -56,6 +73,10 @@ public class User {
         return userrole.toString();
     }
 
+    public Timestamp getter_createdDate() {
+        return created_date;
+    }
+
     public void setter_id(int id) {
         this.id = id;
     }
@@ -74,6 +95,10 @@ public class User {
 
     public void setter_userrole(UserRole userrole) {
         this.userrole = userrole;
+    }
+
+    public void setter_createdDate(Timestamp created_date) {
+        this.created_date = created_date;
     }
 
 }

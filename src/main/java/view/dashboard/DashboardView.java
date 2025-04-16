@@ -30,7 +30,7 @@ public class DashboardView extends VerticalLayout implements BeforeEnterObserver
         // Check if user is logged in
         if (!authService.isLoggedIn()) {
             event.forwardTo("login");
-            return;
+            return; 
         }
         
         // Get user role and load appropriate panel
@@ -41,6 +41,8 @@ public class DashboardView extends VerticalLayout implements BeforeEnterObserver
         
         // Create the appropriate panel based on user role
         Component panel;
+        System.out.println("hi");
+        System.out.println("Role:"+userRole);
         
         switch (userRole) {
             case "Administrator":
@@ -52,7 +54,7 @@ public class DashboardView extends VerticalLayout implements BeforeEnterObserver
             case "Tester":
                 panel = new TesterPanel(authService);
                 break;
-            case "Manager":
+            case "ProjectManager":
                 panel = new ManagerPanel(authService);
                 break;
             default:

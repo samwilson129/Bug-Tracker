@@ -16,16 +16,18 @@ public class BugService {
     }
 
     // Report a new bug
-    public Bug reportBug(String title, String description, String reportedBy) {
+    public Bug reportBug(String title, String description, String reportedBy, int projectId) {
         Bug newBug = new Bug(
             0, // ID is auto-generated in the database
             title,
             description,
             BugStatus.reported, // Default status when reported
+            Bug.Priority.Low, // Default priority
             LocalDateTime.now(),
             LocalDateTime.now(),
             null, // No developer assigned initially
-            reportedBy
+            reportedBy,
+            projectId
         );
         int generatedId = bugDAO.addBug(newBug);
         newBug.setter_id(generatedId); // Set the auto-generated ID
@@ -62,6 +64,32 @@ public class BugService {
             return bugDAO.updateBug(bug);
         }
         return false;
+    }
+
+    // Get bugs count assigned to a specific user
+    public int getAssignedBugCount(int userId) {
+        return bugDAO.getAssignedBugCount(userId);
+    }
+
+    // Get bugs count completed by a specific user
+    public int getCompletedBugCount(int userId) {
+        return bugDAO.getCompletedBugCount(userId);
+    }
+
+    // Get list of bugs unassigned to any developer
+    public List<Bug> getUnassignedBugs() {
+        return bugDAO.getUnassignedBugs();
+    }
+
+    // Get list of unassigned bugs for a specific project
+    public List<Bug> getUnassignedBugsForProject(int projectId) {
+        return bugDAO.getUnassignedBugsForProject(projectId);
+    }
+
+
+    // Get list of bugs assigned to a specific developer
+    public boolean assignBugToUser(int bugId, int userId) {
+        return bugDAO.assignBugToUser(bugId, userId);
     }
 
     // Delete a bug

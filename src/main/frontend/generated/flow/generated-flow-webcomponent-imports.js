@@ -1,13 +1,13 @@
 import { injectGlobalWebcomponentCss } from 'Frontend/generated/jar-resources/theme-util.js';
 
-import '@vaadin/tooltip/src/vaadin-tooltip.js';
-import '@vaadin/polymer-legacy-adapter/style-modules.js';
-import '@vaadin/icon/src/vaadin-icon.js';
 import '@vaadin/icons/vaadin-iconset.js';
+import '@vaadin/polymer-legacy-adapter/style-modules.js';
+import '@vaadin/vertical-layout/src/vaadin-vertical-layout.js';
+import '@vaadin/tooltip/src/vaadin-tooltip.js';
+import '@vaadin/icon/src/vaadin-icon.js';
 import '@vaadin/horizontal-layout/src/vaadin-horizontal-layout.js';
 import '@vaadin/button/src/vaadin-button.js';
 import 'Frontend/generated/jar-resources/disableOnClickFunctions.js';
-import '@vaadin/vertical-layout/src/vaadin-vertical-layout.js';
 import '@vaadin/text-field/src/vaadin-text-field.js';
 import '@vaadin/password-field/src/vaadin-password-field.js';
 import '@vaadin/notification/src/vaadin-notification.js';
@@ -21,11 +21,11 @@ import 'Frontend/generated/jar-resources/ReactRouterOutletElement.tsx';
 
 const loadOnDemand = (key) => {
   const pending = [];
-  if (key === '82a296d851797984ac8c157842f3a9265b0a69492cbb2d7b8a929c64437a0240') {
-    pending.push(import('./chunks/chunk-2a2a5c9a960489a2b7b4e7d779e77b22b704e94df3d7a24255f7b28df68e6c1f.js'));
-  }
   if (key === '4def31c488f68ee50d622a5581197a4b94d9e305b65f284cebc782df8002e30c') {
-    pending.push(import('./chunks/chunk-e1ba28b1310465a3a8792e71167f7e86094468b69ab6bdd5b119cc0e88c1bfd2.js'));
+    pending.push(import('./chunks/chunk-8791932d9cd74e1e7e9a0b362b19e8cd2fd7fbd1b189d739a806d6b12f9ce74a.js'));
+  }
+  if (key === '82a296d851797984ac8c157842f3a9265b0a69492cbb2d7b8a929c64437a0240') {
+    pending.push(import('./chunks/chunk-c36a48f247de53776d562a6d3c577267d78d8f05939d636a0abf34ff6f6ae2ba.js'));
   }
   return Promise.all(pending);
 }
