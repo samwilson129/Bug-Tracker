@@ -19,6 +19,7 @@ import main.java.DAO.BugDAO;
 import main.java.DAO.ProjectDAO;
 import main.java.DAO.UserDAO;
 import main.java.model.Bug;
+import main.java.model.BugStatus;
 import main.java.model.Project;
 import main.java.model.User;
 import main.java.security.AuthService;
@@ -123,17 +124,17 @@ public class DeveloperPanel extends VerticalLayout {
 
         // Count bugs by status
         long openBugsCount = assignedBugs.stream()
-                .filter(b -> b.getter_bugstatus() == Bug.BugStatus.reported)
+                .filter(b -> b.getter_bugstatus() == BugStatus.reported)
                 .count();
 
         long inProgressBugsCount = assignedBugs.stream()
-                .filter(b -> b.getter_bugstatus() == Bug.BugStatus.in_progress)
+                .filter(b -> b.getter_bugstatus() == BugStatus.in_progress)
                 .count();
 
         long resolvedBugsCount = assignedBugs.stream()
-                .filter(b -> b.getter_bugstatus() == Bug.BugStatus.fixed ||
-                        b.getter_bugstatus() == Bug.BugStatus.verified ||
-                        b.getter_bugstatus() == Bug.BugStatus.closed)
+                .filter(b -> b.getter_bugstatus() == BugStatus.fixed ||
+                        b.getter_bugstatus() == BugStatus.verified ||
+                        b.getter_bugstatus() == BugStatus.closed)
                 .count();
 
         // Summary cards
@@ -190,14 +191,14 @@ public class DeveloperPanel extends VerticalLayout {
             resolveButton.getElement().setAttribute("aria-label", "Resolve bug");
 
             // Only enable resolve button for in-progress bugs
-            resolveButton.setEnabled(bug.getter_bugstatus() == Bug.BugStatus.in_progress);
+            resolveButton.setEnabled(bug.getter_bugstatus() == BugStatus.in_progress);
 
             resolveButton.addClickListener(e -> {
-                if (bug.getter_bugstatus() == Bug.BugStatus.in_progress) {
-                    bug.setter_bugstatus(Bug.BugStatus.fixed);
+                if (bug.getter_bugstatus() == BugStatus.in_progress) {
+                    bug.setter_bugstatus(BugStatus.fixed);
                     bug.setter_updatedAt(java.time.LocalDateTime.now());
 
-                    if (bugService.updateBugStatus(bug.getter_id(), Bug.BugStatus.fixed)) {
+                    if (bugService.updateBugStatus(bug.getter_id(),BugStatus.fixed)) {
                         Notification.show("Bug marked as fixed",
                                 3000, Position.MIDDLE);
                         refreshBugsGrid();
@@ -314,11 +315,11 @@ public class DeveloperPanel extends VerticalLayout {
                     .collect(Collectors.toList());
 
             long openBugs = projectBugs.stream()
-                    .filter(b -> b.getter_bugstatus() == Bug.BugStatus.reported)
+                    .filter(b -> b.getter_bugstatus() ==BugStatus.reported)
                     .count();
 
             long inProgressBugs = projectBugs.stream()
-                    .filter(b -> b.getter_bugstatus() == Bug.BugStatus.in_progress)
+                    .filter(b -> b.getter_bugstatus() ==BugStatus.in_progress)
                     .count();
 
             VerticalLayout projectCard = createProjectCard(

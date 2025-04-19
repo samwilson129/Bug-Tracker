@@ -31,6 +31,7 @@ import main.java.service.BugService;
 import main.java.service.UserService;
 import main.java.service.ProjectService;
 import main.java.model.Bug;
+import main.java.model.BugStatus;
 import main.java.model.Project;
 import main.java.model.User;
 import main.java.model.Report;
@@ -706,15 +707,15 @@ public class ManagerPanel extends VerticalLayout {
                 // Count bugs by status
                 long totalBugs = projectBugs.size();
                 long openBugs = projectBugs.stream()
-                        .filter(b -> b.getter_bugstatus() == Bug.BugStatus.reported)
+                        .filter(b -> b.getter_bugstatus() == BugStatus.reported)
                         .count();
                 long inProgressBugs = projectBugs.stream()
-                        .filter(b -> b.getter_bugstatus() == Bug.BugStatus.in_progress)
+                        .filter(b -> b.getter_bugstatus() == BugStatus.in_progress)
                         .count();
                 long resolvedBugs = projectBugs.stream()
-                        .filter(b -> b.getter_bugstatus() == Bug.BugStatus.fixed ||
-                                b.getter_bugstatus() == Bug.BugStatus.verified ||
-                                b.getter_bugstatus() == Bug.BugStatus.closed)
+                        .filter(b -> b.getter_bugstatus() ==BugStatus.fixed ||
+                                b.getter_bugstatus() ==BugStatus.verified ||
+                                b.getter_bugstatus() ==BugStatus.closed)
                         .count();
 
                 // Update preview

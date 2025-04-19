@@ -1,30 +1,9 @@
 package main.java.model;
 
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Bug {
-    public enum BugStatus {
-        reported,
-        in_progress,
-        fixed,
-        verified,
-        closed;
-
-        public static BugStatus fromString(String status) {
-            System.out.println("Converting string to BugStatus: " + status);
-            return BugStatus.valueOf(status.toLowerCase());
-        }
-    }
-
-    public enum Priority {
-        Low,
-        Medium,
-        High,
-        Critical;
-    }
-
     @JsonProperty("id")
     private int id;
 
@@ -35,7 +14,7 @@ public class Bug {
     private String description;
 
     @JsonProperty("bugstatus")
-    private BugStatus bugstatus;
+    private BugStatus bugStatus;
 
     @JsonProperty("priority")
     private Priority priority;
@@ -53,104 +32,188 @@ public class Bug {
     private String reportedBy;
 
     @JsonProperty("project_id")
-    private int project_id;
+    private int projectId;
 
-    public Bug(int id, String title, String description, BugStatus bugstatus,Priority priority, LocalDateTime createdAt,
-            LocalDateTime updatedAt, String assignedTo, String reportedBy, int project_id) {
+    // Default constructor
+    public Bug() {
+    }
+
+    // Full constructor
+    public Bug(int id, String title, String description, BugStatus bugStatus, Priority priority, 
+               LocalDateTime createdAt, LocalDateTime updatedAt, String assignedTo, 
+               String reportedBy, int projectId) {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.bugstatus = bugstatus;
+        this.bugStatus = bugStatus;
         this.priority = priority;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.assignedTo = assignedTo;
         this.reportedBy = reportedBy;
-        this.project_id = project_id;
+        this.projectId = projectId;
     }
 
-    public Bug() {
-        // Default constructor
-    }
-
-    public int getter_id() {
+    // Standard getters and setters with consistent naming
+    public int getId() {
         return id;
     }
 
-    public String getter_title() {
-        return title;
-    }
-
-    public String getter_description() {
-        return description;
-    }
-
-    public BugStatus getter_bugstatus() {
-        return bugstatus;
-    }
-
-    public Priority getter_priority() {
-        return priority;
-    }
-
-    public LocalDateTime getter_createdAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getter_updatedAt() {
-        return updatedAt;
-    }
-
-    public String getter_assignedTo() {
-        return assignedTo;
-    }
-
-    public String getter_reportedBy() {
-        return reportedBy;
-    }
-
-    public int getter_projectId() {
-        return project_id;
-    }
-
-    public void setter_id(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public void setter_title(String title) {
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setter_description(String description) {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public void setter_bugstatus(BugStatus bugstatus) {
-        this.bugstatus = bugstatus;
+    public BugStatus getBugStatus() {
+        return bugStatus;
     }
 
-    public void setter_priority(Priority priority) {
+    public void setBugStatus(BugStatus bugStatus) {
+        this.bugStatus = bugStatus;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 
-    public void setter_createdAt(LocalDateTime createdAt) {
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public void setter_updatedAt(LocalDateTime updatedAt) {
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public void setter_assignedTo(String assignedTo) {
+    public String getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
     }
 
-    public void setter_reportedBy(String reportedBy) {
+    public String getReportedBy() {
+        return reportedBy;
+    }
+
+    public void setReportedBy(String reportedBy) {
         this.reportedBy = reportedBy;
     }
 
-    public void setter_projectId(int project_id) {
-        this.project_id = project_id;
+    public int getProjectId() {
+        return projectId;
     }
 
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    // Legacy getter methods for backward compatibility
+    public int getter_id() {
+        return getId();
+    }
+
+    public String getter_title() {
+        return getTitle();
+    }
+
+    public String getter_description() {
+        return getDescription();
+    }
+
+    public BugStatus getter_bugstatus() {
+        return getBugStatus();
+    }
+
+    public Priority getter_priority() {
+        return getPriority();
+    }
+
+    public LocalDateTime getter_createdAt() {
+        return getCreatedAt();
+    }
+
+    public LocalDateTime getter_updatedAt() {
+        return getUpdatedAt();
+    }
+
+    public String getter_assignedTo() {
+        return getAssignedTo();
+    }
+
+    public String getter_reportedBy() {
+        return getReportedBy();
+    }
+
+    public int getter_projectId() {
+        return getProjectId();
+    }
+
+    // Legacy setter methods for backward compatibility
+    public void setter_id(int id) {
+        setId(id);
+    }
+
+    public void setter_title(String title) {
+        setTitle(title);
+    }
+
+    public void setter_description(String description) {
+        setDescription(description);
+    }
+
+    public void setter_bugstatus(BugStatus bugStatus) {
+        setBugStatus(bugStatus);
+    }
+
+    public void setter_priority(Priority priority) {
+        setPriority(priority);
+    }
+
+    public void setter_createdAt(LocalDateTime createdAt) {
+        setCreatedAt(createdAt);
+    }
+
+    public void setter_updatedAt(LocalDateTime updatedAt) {
+        setUpdatedAt(updatedAt);
+    }
+
+    public void setter_assignedTo(String assignedTo) {
+        setAssignedTo(assignedTo);
+    }
+
+    public void setter_reportedBy(String reportedBy) {
+        setReportedBy(reportedBy);
+    }
+
+    public void setter_projectId(int projectId) {
+        setProjectId(projectId);
+    }
 }

@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import main.java.model.Bug;
-import main.java.model.Bug.BugStatus;
+import main.java.model.BugStatus;
+import main.java.model.Priority;
 
 public class BugDAO {
 
@@ -120,8 +121,8 @@ public class BugDAO {
                 String description = rs.getString("description");
                 // Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));//
                 // here changed from BugStatus.valueOf to Bug.BugStatus.valueOf
-                Bug.BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
-                Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
+                BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
+                Priority priority = Priority.valueOf(rs.getString("priority"));
                 LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                 LocalDateTime updatedAt = rs.getTimestamp("updated_at").toLocalDateTime();
                 String assignedTo = rs.getString("assigned_to");
@@ -149,8 +150,8 @@ public class BugDAO {
                 String title = rs.getString("title");
                 String description = rs.getString("description");
                 // Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));
-                Bug.BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
-                Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
+                BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
+                Priority priority = Priority.valueOf(rs.getString("priority"));
                 LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                 LocalDateTime updatedAt = rs.getTimestamp("updated_at").toLocalDateTime();
                 String assignedTo = rs.getString("assigned_to");
@@ -197,7 +198,7 @@ public class BugDAO {
                 bug.setter_title(rs.getString("title"));
                 bug.setter_description(rs.getString("description"));
                 bug.setter_bugstatus(BugStatus.fromString(rs.getString("status")));
-                bug.setter_priority(Bug.Priority.valueOf(rs.getString("priority")));
+                bug.setter_priority(Priority.valueOf(rs.getString("priority")));
                 bug.setter_createdAt(rs.getTimestamp("created_at").toLocalDateTime());
                 bugs.add(bug);
             }
@@ -237,7 +238,7 @@ public class BugDAO {
                 bug.setter_title(rs.getString("title"));
                 bug.setter_description(rs.getString("description"));
                 bug.setter_bugstatus(BugStatus.fromString(rs.getString("status")));
-                bug.setter_priority(Bug.Priority.valueOf(rs.getString("priority")));
+                bug.setter_priority(Priority.valueOf(rs.getString("priority")));
                 bug.setter_createdAt(rs.getTimestamp("created_at").toLocalDateTime());
                 bugs.add(bug);
             }
@@ -273,8 +274,8 @@ public class BugDAO {
                 String title = rs.getString("title");
                 String description = rs.getString("description");
                 // Bug.BugStatus bugstatus = Bug.BugStatus.valueOf(rs.getString("status"));
-                Bug.BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
-                Bug.Priority priority = Bug.Priority.valueOf(rs.getString("priority"));
+                BugStatus bugstatus = BugStatus.fromString(rs.getString("status"));
+                Priority priority = Priority.valueOf(rs.getString("priority"));
                 LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                 LocalDateTime updatedAt = rs.getTimestamp("updated_at").toLocalDateTime();
                 String assignedTo = rs.getString("assigned_to");

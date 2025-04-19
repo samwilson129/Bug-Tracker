@@ -24,6 +24,8 @@ import main.java.model.Project;
 import main.java.security.AuthService;
 import main.java.service.ProjectService;
 import main.java.model.Bug;
+import main.java.model.BugStatus;
+import main.java.model.Priority;
 import main.java.model.User;
 
 import java.time.LocalDateTime;
@@ -213,8 +215,8 @@ public class TesterPanel extends VerticalLayout {
         projectField.setItems(projects);
         projectField.setItemLabelGenerator(Project::getter_name);
 
-        ComboBox<Bug.Priority> priorityField = new ComboBox<>("Priority");
-        priorityField.setItems(Bug.Priority.values());
+        ComboBox<Priority> priorityField = new ComboBox<>("Priority");
+        priorityField.setItems(Priority.values());
         priorityField.setWidthFull();
         priorityField.setRequired(true);
 
@@ -236,12 +238,12 @@ public class TesterPanel extends VerticalLayout {
 
             String currentUserId = VaadinSession.getCurrent().getAttribute("userId").toString();
             System.out.println(currentUserId);
-            Bug newBug = new Bug(0, "", "", Bug.BugStatus.reported, Bug.Priority.Low, LocalDateTime.now(),
+            Bug newBug = new Bug(0, "", "", BugStatus.reported, Priority.Low, LocalDateTime.now(),
                     LocalDateTime.now(), null, null, 0);
 
             newBug.setter_title(titleField.getValue());
             newBug.setter_description(descriptionField.getValue());
-            newBug.setter_bugstatus(Bug.BugStatus.reported);
+            newBug.setter_bugstatus(BugStatus.reported);
             newBug.setter_priority(priorityField.getValue());
             newBug.setter_createdAt(LocalDateTime.now());
             newBug.setter_updatedAt(LocalDateTime.now());
@@ -292,12 +294,12 @@ public class TesterPanel extends VerticalLayout {
         // Count summary stats
         long totalReported = bugs.size();
         long totalOpen = bugs.stream()
-                .filter(b -> b.getter_bugstatus() == Bug.BugStatus.reported
-                        || b.getter_bugstatus() == Bug.BugStatus.in_progress)
+                .filter(b -> b.getter_bugstatus() == BugStatus.reported
+                        || b.getter_bugstatus() == BugStatus.in_progress)
                 .count();
         long totalResolved = bugs.stream()
-                .filter(b -> b.getter_bugstatus() == Bug.BugStatus.fixed
-                        || b.getter_bugstatus() == Bug.BugStatus.closed)
+                .filter(b -> b.getter_bugstatus() == BugStatus.fixed
+                        || b.getter_bugstatus() == BugStatus.closed)
                 .count();
 
         // Summary cards

@@ -4,7 +4,8 @@ import main.java.DAO.BugDAO;
 import main.java.DAO.UserDAO;
 import main.java.model.Bug;
 import main.java.model.User;
-import main.java.model.Bug.BugStatus;
+import main.java.model.BugStatus;
+import main.java.model.Priority;
 import main.java.model.Project;
 import main.java.model.User.UserRole;
 import main.java.service.ProjectService;
@@ -120,7 +121,7 @@ public class UserService {
             title,
             description,
             BugStatus.reported,
-            Bug.Priority.Low,
+            Priority.Low,
             LocalDateTime.now(),
             LocalDateTime.now(),
             null,

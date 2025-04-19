@@ -6,7 +6,8 @@ import java.util.stream.Collectors;
 
 import main.java.DAO.BugDAO;
 import main.java.model.Bug;
-import main.java.model.Bug.BugStatus;
+import main.java.model.BugStatus;
+import main.java.model.Priority;
 
 public class BugService {
     private final BugDAO bugDAO;
@@ -22,7 +23,7 @@ public class BugService {
                 title,
                 description,
                 BugStatus.reported, // Default status when reported
-                Bug.Priority.Low, // Default priority
+                Priority.Low, // Default priority
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 null, // No developer assigned initially
