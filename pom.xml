@@ -117,17 +117,49 @@
 
     <build>
         <defaultGoal>jetty:run</defaultGoal>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.java</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <compilerArgs>
+                        <arg>-sourcepath</arg>
+                        <arg>${project.basedir}/src/main/java</arg>
+                    </compilerArgs>
+                    <includes>
+                        <include>main/java/**/*.java</include>
+                    </includes>
+                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.3.2</version>
+                <configuration>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <webResources>
+                        <resource>
+                            <directory>src</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
             </plugin>
 
             <!-- Jetty Plugin (Updated for Jetty 11) -->
@@ -162,4 +194,3 @@
     It includes dependencies for MySQL, HikariCP, SLF4J, and Jetty server.
     The project is configured to use Java 17 and Vaadin version 24.7.1.
     The Jetty plugin is set up for running the application in a development environment. -->
-    
