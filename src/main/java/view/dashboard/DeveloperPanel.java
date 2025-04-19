@@ -1,10 +1,14 @@
 package main.java.view.dashboard;
 
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -25,8 +29,10 @@ import main.java.model.User;
 import main.java.security.AuthService;
 import main.java.service.BugService;
 import main.java.service.ProjectService;
+import main.java.model.Priority;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -183,9 +189,8 @@ public class DeveloperPanel extends VerticalLayout {
             Button viewButton = new Button(VaadinIcon.EYE.create());
             viewButton.addThemeVariants();
             viewButton.getElement().setAttribute("aria-label", "View bug details");
-            viewButton.addClickListener(e -> Notification.show("Viewing bug: " + bug.getter_title(),
-                    3000, Position.MIDDLE));
 
+            viewButton.addClickListener(e -> showBugDetailsDialog(bug));
             Button resolveButton = new Button(VaadinIcon.CHECK.create());
             resolveButton.addThemeVariants();
             resolveButton.getElement().setAttribute("aria-label", "Resolve bug");
@@ -257,6 +262,147 @@ public class DeveloperPanel extends VerticalLayout {
         }
     }
 
+    private void showBugDetailsDialog(Bug bug) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Bug Details: #" + bug.getter_id());
+        dialog.setWidth("600px");
+        
+        // Create the layout for bug details
+        VerticalLayout content = new VerticalLayout();
+        content.setPadding(true);
+        content.setSpacing(true);
+        
+        // Title
+        H3 title = new H3(bug.getter_title());
+        title.getStyle().set("margin-top", "0");
+        
+        // Format dates
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
+        String createdDate = bug.getter_createdAt().format(formatter);
+        String updatedDate = bug.getter_updatedAt().format(formatter);
+        
+        // Description
+        Span description = new Span(bug.getter_description());
+        description.getElement().getStyle().set("white-space", "pre-wrap");
+        description.getElement().getStyle().set("font-family", "monospace");
+        description.getElement().getStyle().set("background-color", "var(--lumo-contrast-5pct)");
+        description.getElement().getStyle().set("padding", "1em");
+        description.getElement().getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+        description.setWidthFull();
+        
+        // Create info grid with status and priority 
+        Grid<KeyValuePair> infoGrid = new Grid<>();
+        infoGrid.setAllRowsVisible(true);
+        infoGrid.setWidth("100%");
+        infoGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
+        
+        // Add columns to the info grid
+        infoGrid.addColumn(KeyValuePair::getKey).setHeader("Field").setWidth("150px").setFlexGrow(0);
+        infoGrid.addComponentColumn(pair -> {
+            if ("Priority".equals(pair.getKey())) {
+                Span prioritySpan = new Span(bug.getter_priority().name());
+                prioritySpan.getStyle()
+                    .set("color", getPriorityColor(bug.getter_priority()))
+                    .set("font-weight", "bold");
+                return prioritySpan;
+            } else {
+                return new Span(pair.getValue());
+            }
+        }).setHeader("Value").setFlexGrow(1);
+        
+        // Get additional information
+        ProjectDAO projectDAO = new ProjectDAO();
+        Project project = projectDAO.getProjectById(bug.getter_projectId());
+        String projectName = project != null ? project.getter_name() : "Unknown Project";
+
+        User reporter = null;
+        try {
+            reporter = userDAO.getUserById(Integer.parseInt(bug.getter_reportedBy()));
+        } catch (NumberFormatException ex) {
+            // Handle case where reportedBy is not a valid integer
+        }
+        String reporterName = reporter != null ? reporter.getter_name() : "Unknown User";
+        
+        // Create data for the grid
+        List<KeyValuePair> infoData = new ArrayList<>();
+        infoData.add(new KeyValuePair("Status", formatStatus(bug.getter_bugstatus())));
+        infoData.add(new KeyValuePair("Priority", bug.getter_priority().name()));
+        infoData.add(new KeyValuePair("Project", projectName));
+        infoData.add(new KeyValuePair("Reported By", reporterName));
+        infoData.add(new KeyValuePair("Created", createdDate));
+        infoData.add(new KeyValuePair("Last Updated", updatedDate));
+        
+        infoGrid.setItems(infoData);
+        
+        // Action buttons based on status
+        HorizontalLayout actions = new HorizontalLayout();
+        actions.setWidthFull();
+        actions.setJustifyContentMode(JustifyContentMode.END);
+        
+        Button closeDialogButton = new Button("Close", event -> dialog.close());
+        closeDialogButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        
+        Button resolveButton = new Button("Mark as Fixed", event -> {
+            if (bug.getter_bugstatus() == BugStatus.in_progress) {
+                bug.setter_bugstatus(BugStatus.fixed);
+                bug.setter_updatedAt(java.time.LocalDateTime.now());
+                
+                if (bugService.updateBugStatus(bug.getter_id(), BugStatus.fixed)) {
+                    Notification.show("Bug marked as fixed", 3000, Position.MIDDLE);
+                    refreshBugsGrid();
+                    dialog.close();
+                } else {
+                    Notification.show("Failed to update bug status", 3000, Position.MIDDLE);
+                }
+            }
+        });
+        resolveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        resolveButton.setEnabled(bug.getter_bugstatus() == BugStatus.in_progress);
+        
+        actions.add(resolveButton, closeDialogButton);
+        
+        // Add components to content
+        content.add(title, description, new Hr(), infoGrid, actions);
+        
+        dialog.add(content);
+        dialog.open();
+    }
+
+    // Helper class for key-value pairs
+    private static class KeyValuePair {
+        private final String key;
+        private final String value;
+        
+        public KeyValuePair(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+        
+        public String getKey() { return key; }
+        public String getValue() { return value; }
+    }
+
+    // Helper methods for formatting
+    private String formatStatus(BugStatus status) {
+        if (status == null) return "";
+        String text = status.name().replace('_', ' ');
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
+    }
+
+    
+
+    private String getPriorityColor(Priority priority) {
+        if (priority == null) return "gray";
+        
+        switch(priority) {
+            case Critical: return "var(--lumo-error-color)";
+            case High: return "orange";
+            case Medium: return "blue";
+            case Low: return "green";
+            default: return "gray";
+        }
+    }
+
     private VerticalLayout createSummaryCard(String title, String count, com.vaadin.flow.component.icon.Icon icon,
             String color) {
         VerticalLayout card = new VerticalLayout();
@@ -313,26 +459,27 @@ public class DeveloperPanel extends VerticalLayout {
             List<Bug> projectBugs = bugDAO.getAllBugs().stream()
                     .filter(b -> b.getter_projectId() == project.getter_id())
                     .collect(Collectors.toList());
-
+        
             long openBugs = projectBugs.stream()
-                    .filter(b -> b.getter_bugstatus() ==BugStatus.reported)
+                    .filter(b -> b.getter_bugstatus() == BugStatus.reported)
                     .count();
-
+        
             long inProgressBugs = projectBugs.stream()
-                    .filter(b -> b.getter_bugstatus() ==BugStatus.in_progress)
+                    .filter(b -> b.getter_bugstatus() == BugStatus.in_progress)
                     .count();
-
+        
             VerticalLayout projectCard = createProjectCard(
                     project.getter_name(),
                     openBugs + " open bugs",
-                    inProgressBugs + " in progress");
+                    inProgressBugs + " in progress",
+                    project);  // Pass the project object
             content.add(projectCard);
         }
 
         return content;
     }
 
-    private VerticalLayout createProjectCard(String projectName, String openBugs, String inProgressBugs) {
+    private VerticalLayout createProjectCard(String projectName, String openBugs, String inProgressBugs, Project project) {
         VerticalLayout card = new VerticalLayout();
         card.addClassName("project-card");
         card.setWidthFull();
@@ -354,9 +501,116 @@ public class DeveloperPanel extends VerticalLayout {
         Button viewButton = new Button("View Project", VaadinIcon.ARROW_RIGHT.create());
         viewButton.getStyle().set("margin-top", "10px");
 
+        viewButton.addClickListener(e -> showProjectDetailsDialog(project));
+
         card.add(projectTitle, stats, viewButton);
 
         return card;
+    }
+
+    private void showProjectDetailsDialog(Project project) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Project Details: " + project.getter_name());
+        dialog.setWidth("700px");
+        
+        VerticalLayout content = new VerticalLayout();
+        content.setPadding(true);
+        content.setSpacing(true);
+        
+        // Project description
+        H3 descriptionTitle = new H3("Description");
+        Span description = new Span(project.getter_description());
+        description.getElement().getStyle()
+            .set("white-space", "pre-wrap")
+            .set("padding", "1em")
+            .set("background-color", "var(--lumo-contrast-5pct)")
+            .set("border-radius", "var(--lumo-border-radius-m)")
+            .set("display", "block");
+        
+        // Project manager info
+        H3 managerTitle = new H3("Project Manager");
+        User manager = userDAO.getUserById(project.getter_managerId());
+        Span managerInfo = new Span(manager != null ? manager.getter_name() : "No manager assigned");
+        
+        // Team members section
+        H3 teamTitle = new H3("Team Members");
+        
+        // Get all developers for this project from project_developers table
+        List<Integer> developerIds = project.getter_developerIds();
+        List<User> developers = new ArrayList<>();
+        
+        for (Integer devId : developerIds) {
+            User developer = userDAO.getUserById(devId);
+            if (developer != null) {
+                developers.add(developer);
+            }
+        }
+        
+        // Create a grid to show team members
+        Grid<User> teamGrid = new Grid<>();
+        teamGrid.setAllRowsVisible(true);
+        teamGrid.addColumn(User::getter_name).setHeader("Name");
+        teamGrid.addColumn(User::getter_email).setHeader("Email");
+        teamGrid.addColumn(u -> u.getter_userrole().toString()).setHeader("Role");
+        teamGrid.setItems(developers);
+        
+        // Bug statistics
+        H3 bugsTitle = new H3("Bug Statistics");
+        
+        // Get bugs for this project
+        BugDAO bugDAO = new BugDAO();
+        List<Bug> projectBugs = bugDAO.getAllBugs().stream()
+            .filter(b -> b.getter_projectId() == project.getter_id())
+            .collect(Collectors.toList());
+        
+        // Count bugs by status
+        long totalBugs = projectBugs.size();
+        long openBugs = projectBugs.stream()
+            .filter(b -> b.getter_bugstatus() == BugStatus.reported)
+            .count();
+        long inProgressBugs = projectBugs.stream()
+            .filter(b -> b.getter_bugstatus() == BugStatus.in_progress)
+            .count();
+        long fixedBugs = projectBugs.stream()
+            .filter(b -> b.getter_bugstatus() == BugStatus.fixed)
+            .count();
+        long verifiedBugs = projectBugs.stream()
+            .filter(b -> b.getter_bugstatus() == BugStatus.verified)
+            .count();
+        long closedBugs = projectBugs.stream()
+            .filter(b -> b.getter_bugstatus() == BugStatus.closed)
+            .count();
+        
+        // Create a grid for bug statistics
+        Grid<KeyValuePair> statsGrid = new Grid<>();
+        statsGrid.setAllRowsVisible(true);
+        statsGrid.addColumn(KeyValuePair::getKey).setHeader("Status");
+        statsGrid.addColumn(KeyValuePair::getValue).setHeader("Count");
+        
+        List<KeyValuePair> stats = new ArrayList<>();
+        stats.add(new KeyValuePair("Total Bugs", String.valueOf(totalBugs)));
+        stats.add(new KeyValuePair("Open", String.valueOf(openBugs)));
+        stats.add(new KeyValuePair("In Progress", String.valueOf(inProgressBugs)));
+        stats.add(new KeyValuePair("Fixed", String.valueOf(fixedBugs)));
+        stats.add(new KeyValuePair("Verified", String.valueOf(verifiedBugs)));
+        stats.add(new KeyValuePair("Closed", String.valueOf(closedBugs)));
+        
+        statsGrid.setItems(stats);
+        
+        // Close button
+        Button closeButton = new Button("Close", e -> dialog.close());
+        closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        
+        content.add(
+            descriptionTitle, description, 
+            managerTitle, managerInfo, 
+            teamTitle, teamGrid, 
+            bugsTitle, statsGrid, 
+            closeButton
+        );
+        
+        dialog.add(content);
+        dialog.open();
     }
 
     private VerticalLayout createActivityContent() {
