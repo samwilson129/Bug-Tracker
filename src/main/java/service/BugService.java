@@ -8,12 +8,20 @@ import main.java.DAO.BugDAO;
 import main.java.model.Bug;
 import main.java.model.BugStatus;
 import main.java.model.Priority;
+import main.java.DAO.bug_repository.IBugRepository;
+import main.java.DAO.bug_strategy.AssignBugStrategy;
+import main.java.DAO.bug_strategy.BugOperationStrategy;
+import main.java.DAO.bug_strategy.UpdateStatusStrategy;
 
 public class BugService {
-    private final BugDAO bugDAO;
+    private final IBugRepository bugRepository;
 
+    public BugService(IBugRepository bugRepository) {
+        this.bugRepository = bugRepository;
+    }
+    
     public BugService() {
-        this.bugDAO = new BugDAO();
+        this.bugRepository = new BugDAO();
     }
 
     // Report a new bug
@@ -29,76 +37,73 @@ public class BugService {
                 null, // No developer assigned initially
                 reportedBy,
                 projectId);
-        int generatedId = bugDAO.addBug(newBug);
+        int generatedId = bugRepository.addBug(newBug);
         newBug.setter_id(generatedId); // Set the auto-generated ID
         return newBug;
     }
 
     // Get bug by ID
     public Bug getBugById(int id) {
-        return bugDAO.getBugById(id);
+        return bugRepository.getBugById(id);
     }
 
     // Get all bugs
     public List<Bug> getAllBugs() {
-        return bugDAO.getAllBugs();
+        return bugRepository.getAllBugs();
     }
 
-    // Assign a bug to a developer
+    // Assign a bug to a developer using Strategy Pattern
     public boolean assignBug(int bugId, String developerUsername) {
-        Bug bug = bugDAO.getBugById(bugId);
+        Bug bug = bugRepository.getBugById(bugId);
         if (bug != null) {
-            bug.setter_assignedTo(developerUsername);
-            bug.setter_updatedAt(LocalDateTime.now());
-            return bugDAO.updateBug(bug);
+            BugOperationStrategy strategy = new AssignBugStrategy(bugRepository, developerUsername);
+            return strategy.execute(bug);
         }
         return false;
     }
-
-    // Update bug status
     public boolean updateBugStatus(int bugId, BugStatus newStatus) {
-        Bug bug = bugDAO.getBugById(bugId);
+        Bug bug = bugRepository.getBugById(bugId);
         if (bug != null) {
-            bug.setter_bugstatus(newStatus);
-            bug.setter_updatedAt(LocalDateTime.now());
-            return bugDAO.updateBug(bug);
+            // Using Strategy pattern
+            BugOperationStrategy strategy = new UpdateStatusStrategy(bugRepository, newStatus);
+            return strategy.execute(bug);
         }
         return false;
     }
 
     // Get bugs count assigned to a specific user
     public int getAssignedBugCount(int userId) {
-        return bugDAO.getAssignedBugCount(userId);
+        return bugRepository.getAssignedBugCount(userId);
     }
 
     // Get bugs count completed by a specific user
     public int getCompletedBugCount(int userId) {
-        return bugDAO.getCompletedBugCount(userId);
+        return bugRepository.getCompletedBugCount(userId);
     }
 
     // Get list of bugs unassigned to any developer
     public List<Bug> getUnassignedBugs() {
-        return bugDAO.getUnassignedBugs();
+        return bugRepository.getUnassignedBugs();
     }
 
     // Get list of unassigned bugs for a specific project
     public List<Bug> getUnassignedBugsForProject(int projectId) {
-        return bugDAO.getUnassignedBugsForProject(projectId);
+        return bugRepository.getUnassignedBugsForProject(projectId);
     }
 
     // Get list of bugs assigned to a specific developer
     public boolean assignBugToUser(int bugId, int userId) {
-        return bugDAO.assignBugToUser(bugId, userId);
+        return bugRepository.assignBugToUser(bugId, userId);
     }
 
     // Delete a bug
     public boolean deleteBug(int bugId) {
-        return bugDAO.deleteBug(bugId);
+        return bugRepository.deleteBug(bugId);
     }
 
     // Fetch all bug data (for reports, views, etc.)
     public List<Bug> fetchBugData() {
-        return bugDAO.getAllBugs();
+        return bugRepository.getAllBugs();
     }
 
     // Get list of bugs by project ID
@@ -111,10 +116,10 @@ public class BugService {
 
     // Get list of active bugs
     public int getActiveBugCount(int projectId) {
-        return bugDAO.getActiveBugCount(projectId);
+        return bugRepository.getActiveBugCount(projectId);
     }
 
     public int getActiveProjectBugCount(int projectId) {
-        return bugDAO.getActiveProjectBugCount(projectId);
+        return bugRepository.getActiveProjectBugCount(projectId);
     }
 }
