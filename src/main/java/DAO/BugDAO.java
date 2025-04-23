@@ -18,7 +18,7 @@ import main.java.DAO.bug_repository.IBugRepository;
 
 public class BugDAO implements IBugRepository {
     private final ObjectMapper objectMapper;
-    
+
     public BugDAO() {
         this.objectMapper = new ObjectMapper();
     }
@@ -29,7 +29,7 @@ public class BugDAO implements IBugRepository {
         String fetchProjectBugsSQL = "SELECT bugs FROM projects WHERE id = ?";
         String updateProjectBugsSQL = "UPDATE projects SET bugs = ? WHERE id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement insertBugStmt = conn.prepareStatement(insertBugSQL, Statement.RETURN_GENERATED_KEYS);
                 PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
                 PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
@@ -89,7 +89,7 @@ public class BugDAO implements IBugRepository {
     @Override
     public Bug getBugById(int id) {
         String sql = "select * from bugs where id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -101,7 +101,7 @@ public class BugDAO implements IBugRepository {
         }
         return null;
     }
-    
+
     // Helper method to map ResultSet to Bug (Single Responsibility)
     private Bug mapResultSetToBug(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
@@ -123,7 +123,7 @@ public class BugDAO implements IBugRepository {
     public List<Bug> getBugByReportedId(String reportedBy) {
         List<Bug> bugs = new ArrayList<>();
         String sql = "select * from bugs where reported_by = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, reportedBy);
             ResultSet rs = stmt.executeQuery();
@@ -139,7 +139,7 @@ public class BugDAO implements IBugRepository {
     @Override
     public int getAssignedBugCount(int userId) {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE assigned_to = ? AND status != 'CLOSED'";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
@@ -158,7 +158,7 @@ public class BugDAO implements IBugRepository {
         List<Bug> bugs = new ArrayList<>();
         String sql = "SELECT * FROM Bugs WHERE project_id = ? AND assigned_to IS NULL";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectId);
@@ -176,7 +176,7 @@ public class BugDAO implements IBugRepository {
     @Override
     public int getCompletedBugCount(int userId) {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE assigned_to = ? AND status = 'CLOSED'";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
@@ -195,7 +195,7 @@ public class BugDAO implements IBugRepository {
         List<Bug> bugs = new ArrayList<>();
         String sql = "SELECT * FROM Bugs WHERE assigned_to IS NULL";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
@@ -211,7 +211,7 @@ public class BugDAO implements IBugRepository {
     @Override
     public boolean assignBugToUser(int bugId, int userId) {
         String sql = "UPDATE Bugs SET assigned_to = ?, status = 'IN_PROGRESS' WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, userId);
@@ -227,7 +227,7 @@ public class BugDAO implements IBugRepository {
     public List<Bug> getAllBugs() {
         List<Bug> bugs = new ArrayList<>();
         String sql = "select * from bugs";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -246,7 +246,7 @@ public class BugDAO implements IBugRepository {
         String fetchProjectBugsSQL = "SELECT bugs FROM projects WHERE id = ?";
         String updateProjectBugsSQL = "UPDATE projects SET bugs = ? WHERE id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement updateBugStmt = conn.prepareStatement(updateBugSQL);
                 PreparedStatement fetchBugsStmt = conn.prepareStatement(fetchProjectBugsSQL);
                 PreparedStatement updateBugsStmt = conn.prepareStatement(updateProjectBugsSQL)) {
@@ -269,9 +269,10 @@ public class BugDAO implements IBugRepository {
                 String bugsJson = rs.getString("bugs");
 
                 if (bugsJson != null && !bugsJson.isEmpty()) {
-                    List<Map<String, Object>> bugList = objectMapper.readValue(bugsJson, 
-                            new TypeReference<List<Map<String, Object>>>() {});
-                    
+                    List<Map<String, Object>> bugList = objectMapper.readValue(bugsJson,
+                            new TypeReference<List<Map<String, Object>>>() {
+                            });
+
                     for (Map<String, Object> bugObj : bugList) {
                         if (((Integer) bugObj.get("id")) == bug.getter_id()) {
                             System.out.println("Updating bug in project JSON: " + bug.getter_id());
@@ -279,7 +280,7 @@ public class BugDAO implements IBugRepository {
                             break;
                         }
                     }
-                    
+
                     // Update the project table with modified bug list
                     String updatedJson = objectMapper.writeValueAsString(bugList);
                     updateBugsStmt.setString(1, updatedJson);
@@ -298,7 +299,7 @@ public class BugDAO implements IBugRepository {
     @Override
     public boolean deleteBug(int id) {
         String sql = "delete from bugs where id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int deleted = stmt.executeUpdate();
@@ -314,7 +315,7 @@ public class BugDAO implements IBugRepository {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE project_id = ? " +
                 "AND status NOT IN ('FIXED', 'VERIFIED', 'CLOSED')";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectId);
@@ -337,7 +338,7 @@ public class BugDAO implements IBugRepository {
         String sql = "SELECT COUNT(*) FROM Bugs WHERE project_id = ? " +
                 "AND status IN ('REPORTED', 'IN_PROGRESS')";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, projectId);

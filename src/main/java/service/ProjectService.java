@@ -1,14 +1,20 @@
 package main.java.service;
 
 import main.java.DAO.ProjectDAO;
+import main.java.DAO.project_repository.IProjectRepository;
 import main.java.model.Project;
 import java.util.List;
 
 public class ProjectService {
-    private ProjectDAO projectDAO;
+    private IProjectRepository projectDAO;
 
     public ProjectService() {
         this.projectDAO = new ProjectDAO();
+    }
+
+    // Constructor for dependency injection
+    public ProjectService(IProjectRepository projectDAO) {
+        this.projectDAO = projectDAO;
     }
 
     // Add a new project
@@ -34,7 +40,6 @@ public class ProjectService {
             return null;
         }
     }
-
 
     // Retrieve all projects managed by a specific manager
     public List<Project> getProjectsByManagerId(int managerId) {

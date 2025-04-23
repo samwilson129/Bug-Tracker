@@ -18,12 +18,12 @@ public class ReportDAO {
     public ReportDAO() {
         // Default constructor
     }
-    
+
     // Constructor with export strategy
     public ReportDAO(ReportExportStrategy exportStrategy) {
         this.exportStrategy = exportStrategy;
     }
-    
+
     // Setter for export strategy
     public void setExportStrategy(ReportExportStrategy exportStrategy) {
         this.exportStrategy = exportStrategy;
@@ -32,7 +32,7 @@ public class ReportDAO {
     // Add a new report
     public void addReport(Report report) {
         String sql = "INSERT INTO reports (generated_by, project, bugs_summaries, generated_date, report_type) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, report.getter_generatedBy());
@@ -50,7 +50,7 @@ public class ReportDAO {
     // Get a report by ID
     public Report getReportById(int id) {
         String sql = "SELECT * FROM reports WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -64,7 +64,7 @@ public class ReportDAO {
                 } catch (Exception e) {
                     // Default to STANDARD if there's an issue
                 }
-                
+
                 return new Report(
                         rs.getInt("id"),
                         rs.getString("generated_by"),
@@ -84,7 +84,7 @@ public class ReportDAO {
         List<Report> reports = new ArrayList<>();
         String sql = "SELECT * FROM reports";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
@@ -96,7 +96,7 @@ public class ReportDAO {
                 } catch (Exception e) {
                     // Default to STANDARD if there's an issue
                 }
-                
+
                 reports.add(new Report(
                         rs.getInt("id"),
                         rs.getString("generated_by"),
@@ -114,7 +114,7 @@ public class ReportDAO {
     // Delete a report by ID
     public boolean deleteReport(int id) {
         String sql = "DELETE FROM reports WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
@@ -124,7 +124,7 @@ public class ReportDAO {
         }
         return false;
     }
-    
+
     // Export a report (using the strategy pattern - OCP implementation)
     public String exportReport(Report report) {
         if (exportStrategy == null) {
@@ -133,12 +133,12 @@ public class ReportDAO {
         }
         return exportStrategy.export(report);
     }
-    
+
     // Strategy interface for report export (OCP implementation)
     public interface ReportExportStrategy {
         String export(Report report);
     }
-    
+
     // Concrete strategies for different export formats (OCP implementation)
     public static class TextExportStrategy implements ReportExportStrategy {
         @Override
@@ -146,7 +146,7 @@ public class ReportDAO {
             return report.generateFormattedReport();
         }
     }
-    
+
     public static class JSONExportStrategy implements ReportExportStrategy {
         @Override
         public String export(Report report) {
@@ -158,7 +158,7 @@ public class ReportDAO {
             json.append("  \"generatedDate\": \"").append(report.getter_generatedDate()).append("\",\n");
             json.append("  \"reportType\": \"").append(report.getReportType()).append("\",\n");
             json.append("  \"bugs\": [\n");
-            
+
             List<String> bugs = report.getter_bugs_summaries();
             for (int i = 0; i < bugs.size(); i++) {
                 json.append("    \"").append(bugs.get(i)).append("\"");
@@ -167,13 +167,13 @@ public class ReportDAO {
                 }
                 json.append("\n");
             }
-            
+
             json.append("  ]\n");
             json.append("}");
             return json.toString();
         }
     }
-    
+
     public static class CSVExportStrategy implements ReportExportStrategy {
         @Override
         public String export(Report report) {
@@ -184,13 +184,13 @@ public class ReportDAO {
             csv.append("\"").append(report.getter_project()).append("\",");
             csv.append("\"").append(report.getter_generatedDate()).append("\",");
             csv.append("\"").append(report.getReportType()).append("\"\n\n");
-            
+
             csv.append("Bug Summaries:\n");
             List<String> bugs = report.getter_bugs_summaries();
             for (int i = 0; i < bugs.size(); i++) {
                 csv.append(i + 1).append(",\"").append(bugs.get(i)).append("\"\n");
             }
-            
+
             return csv.toString();
         }
     }

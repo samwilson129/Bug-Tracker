@@ -1,21 +1,32 @@
 package main.java.DAO;
 
+import main.java.model.Project;
+import main.java.DAO.project_repository.IProjectRepository;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import main.java.model.Project;
+import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ProjectDAO {
+public class ProjectDAO implements IProjectRepository {
+    private final ObjectMapper objectMapper;
 
-    public void addProject(Project project) {
+    public ProjectDAO() {
+        this.objectMapper = new ObjectMapper();
+    }
+
+    @Override
+    public Project addProject(Project project) {
         String insertProjectSQL = "INSERT INTO projects (id, name, description, bugs, manager_id) VALUES (?, ?, ?, ?, ?)";
         String insertDeveloperSQL = "INSERT INTO project_developers (project_id, developer_id) VALUES (?, ?)";
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false); // Start transaction
 
-            try (PreparedStatement projectStmt = conn.prepareStatement(insertProjectSQL);
+            try (PreparedStatement projectStmt = conn.prepareStatement(insertProjectSQL,
+                    Statement.RETURN_GENERATED_KEYS);
                     PreparedStatement developerStmt = conn.prepareStatement(insertDeveloperSQL)) {
 
                 // Insert into Projects
@@ -25,6 +36,13 @@ public class ProjectDAO {
                 projectStmt.setString(4, String.join(",", project.getter_bugs()));
                 projectStmt.setInt(5, project.getter_managerId());
                 projectStmt.executeUpdate();
+
+                // Retrieve generated ID
+                try (ResultSet generatedKeys = projectStmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        project.setter_id(generatedKeys.getInt(1));
+                    }
+                }
 
                 // Insert into Project_Developers
                 for (Integer devId : project.getter_developerIds()) {
@@ -45,13 +63,16 @@ public class ProjectDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return project; // Make sure to return the project with its generated ID
     }
 
+    @Override
     public Project getProjectById(int id) {
         String selectProjectSQL = "SELECT * FROM projects WHERE id = ?";
         String selectDevelopersSQL = "SELECT developer_id FROM project_developers WHERE project_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement projectStmt = conn.prepareStatement(selectProjectSQL);
                 PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL)) {
 
@@ -84,10 +105,11 @@ public class ProjectDAO {
         return null;
     }
 
+    @Override
     public List<Project> getProjectsByManagerId(int managerId) {
         List<Project> projects = new ArrayList<>();
         String sql = "SELECT * FROM projects WHERE manager_id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, managerId);
@@ -123,13 +145,14 @@ public class ProjectDAO {
         return projects;
     }
 
+    @Override
     public List<Project> getProjectsByDeveloperId(int developerId) {
         List<Project> projects = new ArrayList<>();
         String sql = "SELECT p.* FROM projects p " +
                 "JOIN project_developers pd ON p.id = pd.project_id " +
                 "WHERE pd.developer_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, developerId);
@@ -172,12 +195,13 @@ public class ProjectDAO {
         return projects;
     }
 
+    @Override
     public List<Project> getAllProjects() {
         List<Project> projects = new ArrayList<>();
         String selectAllProjectsSQL = "SELECT * FROM projects";
         String selectDevelopersSQL = "SELECT developer_id FROM project_developers WHERE project_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement devStmt = conn.prepareStatement(selectDevelopersSQL);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(selectAllProjectsSQL)) {
@@ -210,12 +234,13 @@ public class ProjectDAO {
         return projects;
     }
 
+    @Override
     public boolean updateProject(Project project) {
         String updateProjectSQL = "UPDATE projects SET name = ?, description = ?, bugs = ?, manager_id = ? WHERE id = ?";
         String deleteOldDevelopersSQL = "DELETE FROM project_developers WHERE project_id = ?";
         String insertDeveloperSQL = "INSERT INTO project_developers (project_id, developer_id) VALUES (?, ?)";
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false); // Begin transaction
 
             try (PreparedStatement updateStmt = conn.prepareStatement(updateProjectSQL);
@@ -258,11 +283,12 @@ public class ProjectDAO {
         return false;
     }
 
+    @Override
     public boolean deleteProject(int id) {
         String deleteDevelopersSQL = "DELETE FROM project_developers WHERE project_id = ?";
         String deleteProjectSQL = "DELETE FROM projects WHERE id = ?";
 
-        try (Connection conn = DBConnection.getConnection()) {
+        try (Connection conn = DBConnection.getInstance().getConnection()) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement devStmt = conn.prepareStatement(deleteDevelopersSQL);
@@ -289,5 +315,39 @@ public class ProjectDAO {
         }
 
         return false;
+    }
+
+    @Override
+    public boolean assignDeveloperToProject(int projectId, int developerId) {
+        String sql = "INSERT INTO project_developers (project_id, developer_id) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectId);
+            stmt.setInt(2, developerId);
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeDeveloperFromProject(int projectId, int developerId) {
+        String sql = "DELETE FROM project_developers WHERE project_id = ? AND developer_id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, projectId);
+            stmt.setInt(2, developerId);
+            int rowsAffected = stmt.executeUpdate();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
