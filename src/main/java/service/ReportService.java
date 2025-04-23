@@ -3,6 +3,7 @@ package main.java.service;
 import java.util.List;
 
 import main.java.DAO.ReportDAO;
+import main.java.DAO.ReportDAO.ReportExportStrategy;
 import main.java.model.Report;
 
 public class ReportService {
@@ -10,6 +11,11 @@ public class ReportService {
 
     public ReportService() {
         this.reportDAO = new ReportDAO();
+    }
+    
+    // Constructor with export strategy (OCP implementation)
+    public ReportService(ReportExportStrategy exportStrategy) {
+        this.reportDAO = new ReportDAO(exportStrategy);
     }
 
     // Add a new report
@@ -37,5 +43,14 @@ public class ReportService {
     public boolean deleteReport(int id) {
         return reportDAO.deleteReport(id);
     }
-
+    
+    // Export a report (OCP implementation)
+    public String exportReport(Report report) {
+        return reportDAO.exportReport(report);
+    }
+    
+    // Set export strategy (OCP implementation)
+    public void setExportStrategy(ReportExportStrategy exportStrategy) {
+        reportDAO.setExportStrategy(exportStrategy);
+    }
 }
