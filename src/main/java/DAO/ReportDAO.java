@@ -31,7 +31,7 @@ public class ReportDAO {
 
     // Add a new report
     public void addReport(Report report) {
-        String sql = "INSERT INTO reports (generated_by, project, bugs_summaries, generated_date, report_type) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO reports (generated_by, project, bugs_summaries, generated_date) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getInstance().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -39,7 +39,6 @@ public class ReportDAO {
             stmt.setString(2, report.getter_project());
             stmt.setString(3, String.join(", ", report.getter_bugs_summaries())); // Convert List to CSV String
             stmt.setTimestamp(4, Timestamp.valueOf(report.getter_generatedDate()));
-            stmt.setString(5, report.getReportType().toString());
 
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -58,20 +57,13 @@ public class ReportDAO {
 
             if (rs.next()) {
                 List<String> bugsSummaries = Arrays.asList(rs.getString("bugs_summaries").split(", "));
-                Report.ReportType reportType = Report.ReportType.STANDARD;
-                try {
-                    reportType = Report.ReportType.valueOf(rs.getString("report_type"));
-                } catch (Exception e) {
-                    // Default to STANDARD if there's an issue
-                }
 
                 return new Report(
                         rs.getInt("id"),
                         rs.getString("generated_by"),
                         rs.getString("project"),
                         bugsSummaries,
-                        rs.getTimestamp("generated_date").toLocalDateTime(),
-                        reportType);
+                        rs.getTimestamp("generated_date").toLocalDateTime());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,20 +82,13 @@ public class ReportDAO {
 
             while (rs.next()) {
                 List<String> bugsSummaries = Arrays.asList(rs.getString("bugs_summaries").split(", "));
-                Report.ReportType reportType = Report.ReportType.STANDARD;
-                try {
-                    reportType = Report.ReportType.valueOf(rs.getString("report_type"));
-                } catch (Exception e) {
-                    // Default to STANDARD if there's an issue
-                }
 
                 reports.add(new Report(
                         rs.getInt("id"),
                         rs.getString("generated_by"),
                         rs.getString("project"),
                         bugsSummaries,
-                        rs.getTimestamp("generated_date").toLocalDateTime(),
-                        reportType));
+                        rs.getTimestamp("generated_date").toLocalDateTime()));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -156,7 +141,6 @@ public class ReportDAO {
             json.append("  \"generatedBy\": \"").append(report.getter_generatedBy()).append("\",\n");
             json.append("  \"project\": \"").append(report.getter_project()).append("\",\n");
             json.append("  \"generatedDate\": \"").append(report.getter_generatedDate()).append("\",\n");
-            json.append("  \"reportType\": \"").append(report.getReportType()).append("\",\n");
             json.append("  \"bugs\": [\n");
 
             List<String> bugs = report.getter_bugs_summaries();
@@ -178,12 +162,11 @@ public class ReportDAO {
         @Override
         public String export(Report report) {
             StringBuilder csv = new StringBuilder();
-            csv.append("id,generatedBy,project,generatedDate,reportType\n");
+            csv.append("id,generatedBy,project,generatedDate\n");
             csv.append(report.getter_id()).append(",");
             csv.append("\"").append(report.getter_generatedBy()).append("\",");
             csv.append("\"").append(report.getter_project()).append("\",");
-            csv.append("\"").append(report.getter_generatedDate()).append("\",");
-            csv.append("\"").append(report.getReportType()).append("\"\n\n");
+            csv.append("\"").append(report.getter_generatedDate()).append("\"\n\n");
 
             csv.append("Bug Summaries:\n");
             List<String> bugs = report.getter_bugs_summaries();

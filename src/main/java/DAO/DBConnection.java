@@ -116,8 +116,7 @@ public class DBConnection {
                     + "generated_by VARCHAR(255) NOT NULL, "
                     + "project VARCHAR(255) NOT NULL, "
                     + "bugs_summaries TEXT, "
-                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
-                    + "report_type VARCHAR(50) DEFAULT 'STANDARD')";
+                    + "generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
             stmt.executeUpdate(createReportsTable);
             System.out.println("[DEBUG] Reports table created or already exists.");
 
